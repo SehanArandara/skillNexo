@@ -22,7 +22,7 @@
         "title": "Secure Your Spot",
         "subtitle": "Join the waitlist for the next cohort. Limited seats available.",
         "success_title": "Registration Complete!",
-        "success_msg": "We've sent a confirmation email. Check your inbox to get started.",
+        "success_msg": "We will contact you via WhatsApp. You can proceed with the payment if there are no issues.",
         "register_another": "Register Another",
         "name_label": "Full Name",
         "name_placeholder": "Enter your full name",
@@ -30,9 +30,17 @@
         "whatsapp_label": "WhatsApp Number",
         "level_label": "Current Knowledge Level",
         "level_options": {
-            "beginner": "Beginner (Reviewing Basics)",
-            "intermediate": "Intermediate (Built a few apps)",
-            "advanced": "Advanced (looking to specialize)"
+            "beginner": "Beginner (No coding experience)",
+            "intermediate": "Intermediate (Knows basics)",
+            "advanced": "Advanced (Built projects)"
+        },
+        "error_msg": "Something went wrong. Please try again.",
+        "contact_support": "If the issue persists, contact us: ",
+        "validation": {
+            "name_short": "Name must be at least 3 characters",
+            "name_long": "Name is too long (max 50 chars)",
+            "email_invalid": "Please enter a valid email address",
+            "whatsapp_invalid": "WhatsApp number must be exactly 10 digits"
         },
         "submit_btn": "Complete Registration",
         "processing": "Processing..."

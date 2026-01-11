@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Section } from '../ui/Section'
 import { Button } from '../ui/Button'
-// import { supabase } from '../../lib/supabase' // Commented out in original
+import { supabase } from '../../lib/supabase'
 import { motion } from 'framer-motion'
 import { CheckCircle, AlertCircle } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
@@ -15,23 +15,52 @@ export function Registration() {
         level: 'beginner'
     })
     const [status, setStatus] = useState('idle') // idle, loading, success, error
+    const [errorMsg, setErrorMsg] = useState('')
+
+    const validateForm = () => {
+        if (formData.name.trim().length < 3) return t('registration.validation.name_short')
+        if (formData.name.length > 50) return t('registration.validation.name_long')
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(formData.email)) return t('registration.validation.email_invalid')
+
+        const phoneRegex = /^\d{10}$/
+        if (!phoneRegex.test(formData.whatsapp)) return t('registration.validation.whatsapp_invalid')
+
+        return null
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setErrorMsg('')
+
+        const validationError = validateForm()
+        if (validationError) {
+            setErrorMsg(validationError)
+            return
+        }
+
         setStatus('loading')
 
         try {
-            // In a real scenario, we would insert into Supabase here
-            // const { error } = await supabase.from('registrations').insert([formData])
-            // if (error) throw error
+            // Insert into Supabase
+            const { error } = await supabase
+                .from('registered_student')
+                .insert([
+                    {
+                        name: formData.name,
+                        email: formData.email,
+                        whatsapp: formData.whatsapp,
+                        level: formData.level
+                    }
+                ])
 
-            // Simulating API call for demo responsiveness
-            await new Promise(resolve => setTimeout(resolve, 1500))
+            if (error) throw error
 
             setStatus('success')
             setFormData({ name: '', email: '', whatsapp: '', level: 'beginner' })
         } catch (error) {
-            console.error(error)
+            console.error('Error registering student:', error.message)
             setStatus('error')
         }
     }
@@ -67,6 +96,7 @@ export function Registration() {
                                 <input
                                     type="text"
                                     required
+                                    maxLength={50}
                                     className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                                     placeholder={t('registration.name_placeholder')}
                                     value={formData.name}
@@ -79,6 +109,7 @@ export function Registration() {
                                 <input
                                     type="email"
                                     required
+                                    maxLength={60}
                                     className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                                     placeholder="john@example.com"
                                     value={formData.email}
@@ -91,10 +122,16 @@ export function Registration() {
                                 <input
                                     type="tel"
                                     required
+                                    maxLength={10}
                                     className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                                     placeholder="07XXXXXX"
                                     value={formData.whatsapp}
-                                    onChange={e => setFormData({ ...formData, whatsapp: e.target.value })}
+                                    onChange={e => {
+                                        const re = /^[0-9\b]+$/;
+                                        if (e.target.value === '' || re.test(e.target.value)) {
+                                            setFormData({ ...formData, whatsapp: e.target.value })
+                                        }
+                                    }}
                                 />
                             </div>
 
@@ -111,10 +148,24 @@ export function Registration() {
                                 </select>
                             </div>
 
-                            {status === 'error' && (
-                                <div className="flex items-center gap-2 text-red-400 text-sm bg-red-400/10 p-3 rounded-lg">
+                            {/* Validation Error Message */}
+                            {errorMsg && (
+                                <div className="flex items-center gap-2 text-yellow-400 text-sm bg-yellow-400/10 p-3 rounded-lg">
                                     <AlertCircle size={16} />
-                                    <span>Something went wrong. Please try again.</span>
+                                    <span>{errorMsg}</span>
+                                </div>
+                            )}
+
+                            {/* System Error / Contact Support Message */}
+                            {status === 'error' && (
+                                <div className="flex flex-col gap-2 text-red-400 text-sm bg-red-400/10 p-3 rounded-lg">
+                                    <div className="flex items-center gap-2">
+                                        <AlertCircle size={16} />
+                                        <span>{t('registration.error_msg')}</span>
+                                    </div>
+                                    <p className="pl-6 text-xs text-red-400/80">
+                                        {t('registration.contact_support')} 0779920805
+                                    </p>
                                 </div>
                             )}
 
