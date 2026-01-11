@@ -1,0 +1,142 @@
+{
+    "hero": {
+        "badge": "🚀 Join the Top 1% of AI Engineers",
+        "title_line1": "The Ultimate All-in-One Course",
+        "title_line2": "Web Development meets AI & ML.",
+        "description": "A comprehensive 2-month masterclass covering Full-Stack Web Dev and AI/ML. Master modern technology through a structured, step-by-step curriculum. 16 days of deep learning to transform your career.",
+        "cta_register": "Register Now",
+        "cta_promo": "Watch Promo"
+    },
+    "syllabus": {
+        "section_title": "The Dual-Engine Path",
+        "section_subtitle": "Mastering the two worlds of modern engineering.",
+        "video_title": "Watch the Roadmap Explained",
+        "intensive_title": "The 16-Day Intensive Masterclass",
+        "intensive_subtitle": "Simultaneous Tracks: Web (Mon) + AI (Thu)",
+        "web_engine": "Web Engine",
+        "ai_brain": "AI Brain",
+        "day_label": "Day",
+        "daily_task": "Daily Task"
+    },
+    "registration": {
+        "title": "Secure Your Spot",
+        "subtitle": "Join the waitlist for the next cohort. Limited seats available.",
+        "success_title": "Registration Complete!",
+        "success_msg": "We've sent a confirmation email. Check your inbox to get started.",
+        "register_another": "Register Another",
+        "name_label": "Full Name",
+        "name_placeholder": "Enter your full name",
+        "email_label": "Email Address",
+        "whatsapp_label": "WhatsApp Number",
+        "level_label": "Current Knowledge Level",
+        "level_options": {
+            "beginner": "Beginner (Reviewing Basics)",
+            "intermediate": "Intermediate (Built a few apps)",
+            "advanced": "Advanced (looking to specialize)"
+        },
+        "submit_btn": "Complete Registration",
+        "processing": "Processing..."
+    },
+    "why_us": {
+        "title_prefix": "Why Choose",
+        "title_highlight": "SkillNexo",
+        "title_suffix": "?",
+        "subtitle": "We don't just teach coding; we build the next generation of AI Engineers.",
+        "features": {
+            "two_in_one": {
+                "title": "The Power of \"Two-in-One\"",
+                "description": "Combine Full-Stack Dev with ML. Build apps that think and predict, not just static pages."
+            },
+            "mentorship": {
+                "title": "Industry-Led Mentorship",
+                "description": "Learn from a Senior Engineer. Master real-world best practices and production-ready workflows."
+            },
+            "lms": {
+                "title": "The \"Next-Gen\" LMS Experience",
+                "description": "Gamified learning with streaks and daily tasks. Our LMS ensures you stay consistent and finish."
+            },
+            "monitoring": {
+                "title": "360° Student Monitoring",
+                "description": "Personalized feedback and monitoring. We track your progress and guide you through every blocker."
+            },
+            "job_oriented": {
+                "title": "Job-Oriented Curriculum",
+                "description": "Master React, Node, & AI. Build a portfolio designed to impress recruiters and launch your career."
+            }
+        }
+    },
+    "instructor": {
+        "name": "Sehan Arandara",
+        "role": "Software Engineer & AI instructor",
+        "title_prefix": "Meet Your",
+        "title_highlight": "Instructor",
+        "bio": {
+            "p1_prefix": "I'm a",
+            "p1_highlight": "Software Engineer & AI Specialist",
+            "p1_suffix": "focused on Real world  Industrial Applications. I bridge the gap between theory and practice, building scalable AI systems ",
+            "p2_prefix": "With",
+            "p2_highlight": "500+ students mentored",
+            "p2_suffix": ", I teach the exact skills needed to thrive in the modern tech industry."
+        },
+        "stats": {
+            "experience": {
+                "label": "Experience",
+                "value": "2+ Years"
+            },
+            "students": {
+                "label": "Students",
+                "value": "500+"
+            },
+            "focus": {
+                "label": "Focus",
+                "value": "Real World"
+            }
+        },
+        "portfolio_btn": "Official Website",
+        "linkedin_btn": "LinkedIn",
+        "testimonials_btn": "Student Testimonials",
+        "videos_btn": "Class Recordings",
+        "testimonials_title": "What Our Students Say",
+        "videos_title": "Watch Class Demos"
+    },
+    "pricing": {
+        "title_prefix": "Simple",
+        "title_highlight": "Pricing",
+        "subtitle": "Invest in your career. The ROI is infinite.",
+        "free": {
+            "name": "Free Seminar",
+            "price": "LKR 0.00",
+            "description": "Introduction to the world of AI Engineering",
+            "features": [
+                "Access to Free Seminar",
+                "Basic Web develpment Concepts",
+                "Basic AI Concepts",
+                "Live Q&A Session",
+                "About the Course"
+            ]
+        },
+        "full": {
+            "name": "Full Course",
+            "price": "LKR 8,000",
+            "description": "The complete 2-month intensive program.",
+            "badge": "Most Popular",
+            "features": [
+                "Online classes via Zoom",
+                "2 months duration (2 days/week)",
+                "Two Certificates (Course & Project)",
+                "60 Days Tasks (Live classes, assignments)",
+                "Gamified LMS Experience",
+                "Lifetime Recordings & Access"
+            ]
+        }
+    },
+    "contact": {
+        "title": "Contact Us",
+        "description": "Need a quick chat with the instructor or have questions? Drop us a message, and we'll connect with you.",
+        "whatsapp": "WhatsApp",
+        "email": "Email"
+    },
+    "nav": {
+        "register": "Register Now"
+    }
+}

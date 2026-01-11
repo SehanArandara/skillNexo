@@ -1,0 +1,141 @@
+{
+    "hero": {
+        "badge": "🚀 ඉහළම 1% AI ඉංජිනේරුවන් අතරට එක්වන්න",
+        "title_line1": "Web Development + AI  පාඨමාලාව",
+        "title_line2": "Web Dev + AI  ප්‍රවීණයෙක් වන්න ",
+        "description": "Full-Stack Web Development සහ AI/ML ආවරණය වන මාස 2ක පුළුල් මාස්ටර් පන්තියක්. පියවරෙන් පියවර විෂය මාලාවක් හරහා නවීන තාක්ෂණය ප්‍රගුණ කරන්න.",
+        "cta_register": "ලියාපදිංචි වන්න",
+        "cta_promo": "ප්‍රවර්ධන වීඩියෝව නරඹන්න"
+    },
+    "syllabus": {
+        "section_title": "Web Development + AI/ML Road Map",
+        "section_subtitle": "නවීන ඉංජිනේරු ලෝකයන් දෙකක් ජයගන්න.",
+        "video_title": "විෂය මාලාව පිළිබඳ පැහැදිලි කිරීම නරඹන්න",
+        "intensive_title": "දින 16 ක Live classes",
+        "intensive_subtitle": "Live classes: Web (සඳුදා) + AI (බ්‍රහස්පතින්දා)",
+        "web_engine": "Web Engine",
+        "ai_brain": "AI Brain",
+        "day_label": "දිනය",
+        "daily_task": "දෛනික අභියෝගය"
+    },
+    "registration": {
+        "title": "ඔබේ ස්ථානය වෙන්කරගන්න",
+        "subtitle": "ඊළඟ කණ්ඩායම සඳහා පොරොත්තු ලේඛනයට සම්බන්ධ වන්න. සීමිත ආසන සංඛ්යාවක් ඇත.",
+        "success_title": "ලියාපදිංචිය සාර්ථකයි!",
+        "success_msg": "අපි තහවුරු කිරීමේ විද්‍යුත් තැපෑලක් එවා ඇත. ආරම්භ කිරීමට ඔබගේ එන ලිපි පරීක්ෂා කරන්න.",
+        "register_another": "තවත් අයෙකු ලියාපදිංචි කරන්න",
+        "name_label": "සම්පූර්ණ නම",
+        "name_placeholder": "ඔබේ නම",
+        "email_label": "විද්‍යුත් තැපැල් ලිපිනය",
+        "whatsapp_label": "WhatsApp අංකය",
+        "level_label": "වත්මන් දැනුම මට්ටම",
+        "level_options": {
+            "beginner": "ආධුනික (මූලික කරුණු සමාලෝචනය)",
+            "intermediate": "අතරමැදි (යෙදුම් කිහිපයක් සාදා ඇත)",
+            "advanced": "උසස් (විශේෂීකරණය කිරීමට බලාපොරොත්තු වේ)"
+        },
+        "submit_btn": "ලියාපදිංචිය සම්පූර්ණ කරන්න",
+        "processing": "සකසමින් පවතී..."
+    },
+    "why_us": {
+        "title_prefix": "ඔබ ",
+        "title_highlight": "SkillNexo",
+        "title_suffix": "තෝරාගත යුත්තේ ඇයි?",
+        "subtitle": "අප විසින් වඩාත් හොද ඉගැන්වීම් ක්‍රමවේදයන් හා නව තාක්ෂණය තුලින් Web Dev & AI විෂයන් දෙකම ඉගැන්වීම් සිදු කරනවා.",
+        "features": {
+            "two_in_one": {
+                "title": "\"Web Development + AI & ML\" වාසිය",
+                "description": "Full-Stack Development සහ AI/ML එකට ඉගෙන ගන්න. AI තාක්ෂණයෙන් සහිත වෙබ් පිටු නිර්මාණයට හා බෙදා හැරීමට හැකියාව ලැබෙනවා"
+            },
+            "mentorship": {
+                "title": " ප්‍රවීණයන්ගෙන් මඟ පෙන්වීම",
+                "description": "software engineer & AI ML ගුරුවරයෙකුගෙන් ඉගෙන ගන්න. ප්‍රායෝගික තාක්ෂණයන් සහ ලෝකයේ භාවිතා වන ක්‍රමවේදයන් ප්‍රගුණ කරන්න."
+            },
+            "lms": {
+                "title": "\"නවීනතම\" LMS අත්දැකීමක්",
+                "description": "මෙය තුල සියලුම class Recordings ඇතුලත් වේ . ඒවගේම LMS තුලින් ඔබහට දින 60ක් පුරාවටම Homeworks , Assignments , Quizes  ලබා දෙයි"
+            },
+            "monitoring": {
+                "title": "360° ශිෂ්‍ය පරීක්ෂාව",
+                "description": "පෞද්ගලික ප්‍රතිපෝෂණ සහ අධීක්ෂණය. අපි ඔබේ ප්‍රගතිය නිරීක්ෂණය කරන අතර සෑම ගැටළුවකදීම ඔබට මඟ පෙන්වන්නෙමු."
+            },
+            "job_oriented": {
+                "title": "රැකියා ඉලක්ක කරගත් විෂය මාලාව",
+                "description": "React, Node, සහ AI ප්‍රගුණ කරන්න. බඳවා ගන්නන්ගේ සිත් ඇදගන්නා සුළු Portfolio එකක් ගොඩනඟා ඔබේ වෘත්තීය ජීවිතය අරඹන්න."
+            }
+        }
+    },
+    "instructor": {
+        "name": "සෙහාන් අරන්දර",
+        "role": "Software Engineer & AI Instructor",
+        "title_prefix": "ඔබේ",
+        "title_highlight": "උපදේශකයා ",
+        "bio": {
+            "p1_prefix": "මම",
+            "p1_highlight": "මෘදුකාංග ඉංජිනේරුවරයෙක් & AI විශේෂඥයෙක්",
+            "p1_suffix": "වන අතර නවීන තාක්ෂණය සමග ගැටෙන ගුරුවරයෙකු වෙමි . මම SLIIT විශ්ව විද්‍යාලයෙන් BSc (Hons) in Software Engineering උපාධිය සම්පුර්ණ කොට ඇත .",
+            "p2_prefix": " ",
+            "p2_highlight": "සිසුන් 500+ කට වැඩි පිරිසකට මඟ පෙන්වා ඇති",
+            "p2_suffix": "මම, ඉතාමත් පහසු ක්‍රම වලින් සංකීර්ණ කරුණු සිසුන් හට පැහැදිලි කරමි . ඒ අතර මම නවීන තාක්ෂණය සමග ගැටෙන ගුරුවරයෙකු වෙමි ."
+        },
+        "stats": {
+            "experience": {
+                "label": "පළපුරුද්ද",
+                "value": "වසර 2+"
+            },
+            "students": {
+                "label": "සිසුන්",
+                "value": "500+"
+            },
+            "focus": {
+                "label": "අවධානය",
+                "value": "R&D"
+            }
+        },
+        "portfolio_btn": "නිල වෙබ් අඩවිය",
+        "linkedin_btn": "LinkedIn",
+        "testimonials_btn": "සිසු අදහස්",
+        "videos_btn": "පන්ති පටිගත කිරීම්",
+        "testimonials_title": "අපගේ සිසුන් පවසන දේ",
+        "videos_title": "පන්ති ආදර්ශන නරඹන්න"
+    },
+    "pricing": {
+        "title_prefix": "සරල",
+        "title_highlight": "මිල ගණන්",
+        "subtitle": "ඔබේ අනාගතය සඳහා ආයෝජනය කරන්න.",
+        "free": {
+            "name": "නොමිලේ සම්මන්ත්‍රණය",
+            "price": "LKR 0.00",
+            "description": "AI ඉංජිනේරු ලෝකයට හැඳින්වීමක්",
+            "features": [
+                "දිශානති සැසිය සඳහා ප්‍රවේශය",
+                "මූලික AI සංකල්ප",
+                "සජීවී ප්‍රශ්න සහ පිළිතුරු සැසිය",
+                "විෂය මාලාව පිළිබඳ දළ විශ්ලේෂණය"
+            ]
+        },
+        "full": {
+            "name": "සම්පූර්ණ පාඨමාලාව",
+            "price": "LKR 8,000",
+            "description": "මාස 2ක සම්පූර්ණ වැඩසටහන.",
+            "badge": "වැඩිපුරම ඉල්ලුමක් ඇති",
+            "features": [
+                "Zoom හරහා ඔන්ලයින් පන්ති",
+                "මාස 2ක කාලය (සතියට දින 2ක්)",
+                "සහතික පත්‍ර දෙකක් (පාඨමාලාව සහ ව්‍යාපෘතිය)",
+                "දින 60ක අභියෝග (සජීවී පන්ති, පැවරුම්)",
+                "Gamified LMS අත්දැකීම",
+                "ජීවිත කාලය පුරාම වීඩියෝ නැරඹීමේ හැකියාව"
+            ]
+        }
+    },
+    "contact": {
+        "title": "අපව අමතන්න",
+        "description": "ඔබට උපදේශකවරයා සමඟ කෙටි සංවාදයක් කිරීමට හෝ වැඩිදුර තොරතුරු දැනගැනීමට අවශ්‍යද? අපට පණිවිඩයක් එවන්න, අපි ඔබව අමතන්නෙමු.",
+        "whatsapp": "WhatsApp",
+        "email": "විද්‍යුත් තැපෑල"
+    },
+    "nav": {
+        "register": "ලියාපදිංචි වන්න"
+    }
+}

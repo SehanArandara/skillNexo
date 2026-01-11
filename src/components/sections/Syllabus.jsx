@@ -1,7 +1,8 @@
 import { Section } from '../ui/Section'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import { CheckCircle, Code2, Brain, Database, Shield, Globe, Layout, Server, Cpu, Box, Lock, Terminal, Layers } from 'lucide-react'
+import { CheckCircle, Code2, Brain, Database, Shield, Globe, Layout, Server, Cpu, Box, Lock, Terminal, Layers, Play } from 'lucide-react'
+import { useLanguage } from '../../context/LanguageContext'
 
 // --- Data ---
 const introTimeline = [
@@ -44,25 +45,25 @@ const introTimeline = [
 ]
 
 const webTrack = [
-    { day: "Day 1", title: "UI/UX Mastery (Tailwind)", tool: "Tailwind", icon: <Layout />, task: "Build a Landing Page" },
-    { day: "Day 2", title: "React.js: State & Hooks", tool: "React", icon: <Code2 />, task: "Interactive Dashboard" },
-    { day: "Day 3", title: "Backend Arch. (Node/Express)", tool: "Node", icon: <Server />, task: "REST API Setup" },
-    { day: "Day 4", title: "Database (Postgres/Mongo)", tool: "SQL", icon: <Database />, task: "Schema Design" },
-    { day: "Day 5", title: "Auth & Security (JWT)", tool: "JWT", icon: <Lock />, task: "Secure Login System" },
-    { day: "Day 6", title: "API Dev & Docs", tool: "Postman", icon: <Globe />, task: "Swagger Docs" },
-    { day: "Day 7", title: "Deployment (Docker/AWS)", tool: "Docker", icon: <Box />, task: "Containerize App" },
-    { day: "Day 8", title: "Final Project: Frontend", tool: "Vite", icon: <Layout />, task: "SaaS UI Complete" },
+    { day: "1", title: "UI/UX Mastery (Tailwind)", tool: "Tailwind", icon: <Layout />, task: "Build a Landing Page" },
+    { day: "2", title: "React.js: State & Hooks", tool: "React", icon: <Code2 />, task: "Interactive Dashboard" },
+    { day: "3", title: "Backend Arch. (Node/Express)", tool: "Node", icon: <Server />, task: "REST API Setup" },
+    { day: "4", title: "Database (Postgres/Mongo)", tool: "SQL", icon: <Database />, task: "Schema Design" },
+    { day: "5", title: "Auth & Security (JWT)", tool: "JWT", icon: <Lock />, task: "Secure Login System" },
+    { day: "6", title: "API Dev & Docs", tool: "Postman", icon: <Globe />, task: "Swagger Docs" },
+    { day: "7", title: "Deployment (Docker/AWS)", tool: "Docker", icon: <Box />, task: "Containerize App" },
+    { day: "8", title: "Final Project: Frontend", tool: "Vite", icon: <Layout />, task: "SaaS UI Complete" },
 ]
 
 const aiTrack = [
-    { day: "Day 1", title: "Python for Data Science", tool: "Pandas", icon: <Terminal />, task: "Data Analysis Script" },
-    { day: "Day 2", title: "Exploratory Data Analysis", tool: "Jupyter", icon: <Layers />, task: "Visualize Trends" },
-    { day: "Day 3", title: "Linear & Logistic Regression", tool: "Sklearn", icon: <Cpu />, task: "Predict Pricing" },
-    { day: "Day 4", title: "Decision Trees & Forests", tool: "Models", icon: <Brain />, task: "Classification Model" },
-    { day: "Day 5", title: "Neural Networks & Deep Learning", tool: "PyTorch", icon: <Brain />, task: "Build a Neural Net" },
-    { day: "Day 6", title: "Natural Language Processing", tool: "NLTK", icon: <CheckCircle />, task: "Sentiment Analyzer" },
-    { day: "Day 7", title: "LLMs & Prompt Eng.", tool: "OpenAI", icon: <Terminal />, task: "Custom Chatbot" },
-    { day: "Day 8", title: "Final Project: AI Brain", tool: "API", icon: <Server />, task: "Integrate AI Model" },
+    { day: "1", title: "Python for Data Science", tool: "Pandas", icon: <Terminal />, task: "Data Analysis Script" },
+    { day: "2", title: "Exploratory Data Analysis", tool: "Jupyter", icon: <Layers />, task: "Visualize Trends" },
+    { day: "3", title: "Linear & Logistic Regression", tool: "Sklearn", icon: <Cpu />, task: "Predict Pricing" },
+    { day: "4", title: "Decision Trees & Forests", tool: "Models", icon: <Brain />, task: "Classification Model" },
+    { day: "5", title: "Neural Networks & Deep Learning", tool: "PyTorch", icon: <Brain />, task: "Build a Neural Net" },
+    { day: "6", title: "Natural Language Processing", tool: "NLTK", icon: <CheckCircle />, task: "Sentiment Analyzer" },
+    { day: "7", title: "LLMs & Prompt Eng.", tool: "OpenAI", icon: <Terminal />, task: "Custom Chatbot" },
+    { day: "8", title: "Final Project: AI Brain", tool: "API", icon: <Server />, task: "Integrate AI Model" },
 ]
 
 // --- Components ---
@@ -110,6 +111,7 @@ function TimelineItem({ data, index }) {
 function DayAccordion({ data, theme = "blue" }) {
     const [isOpen, setIsOpen] = useState(false)
     const isBlue = theme === "blue"
+    const { t } = useLanguage()
 
     return (
         <motion.div
@@ -129,7 +131,7 @@ function DayAccordion({ data, theme = "blue" }) {
                         {data.icon}
                     </div>
                     <div>
-                        <div className="text-xs text-gray-500 font-mono mb-0.5">{data.day}</div>
+                        <div className="text-xs text-gray-500 font-mono mb-0.5">{t('syllabus.day_label')} {data.day}</div>
                         <div className="font-semibold text-sm sm:text-base">{data.title}</div>
                     </div>
                 </div>
@@ -149,7 +151,7 @@ function DayAccordion({ data, theme = "blue" }) {
                     >
                         <div className="px-4 pb-4 pl-[4.5rem]">
                             <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide opacity-70">
-                                <CheckCircle size={12} /> Daily Task
+                                <CheckCircle size={12} /> {t('syllabus.daily_task')}
                             </div>
                             <div className="text-gray-400 text-sm mt-1">
                                 {data.task}
@@ -163,11 +165,13 @@ function DayAccordion({ data, theme = "blue" }) {
 }
 
 export function Syllabus() {
+    const { t } = useLanguage()
+
     return (
         <Section id="syllabus" dark className="relative">
             <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-5xl font-bold mb-4">The Dual-Engine <span className="text-white">Path</span></h2>
-                <p className="text-gray-400">Mastering the two worlds of modern engineering.</p>
+                <h2 className="text-3xl md:text-5xl font-bold mb-4">{t('syllabus.section_title')}</h2>
+                <p className="text-gray-400">{t('syllabus.section_subtitle')}</p>
             </div>
 
             {/* --- Part 1: Timeline (Gateway & Onboarding) --- */}
@@ -178,10 +182,10 @@ export function Syllabus() {
             </div>
 
             {/* --- Part 2: Split Track --- */}
-            <div>
+            <div className="mb-24">
                 <div className="text-center mb-10">
-                    <h3 className="text-2xl font-bold">The 16-Day Intensive Masterclass</h3>
-                    <p className="text-gray-500 text-sm mt-2">Simultaneous Tracks: Web (Mon) + AI (Thu)</p>
+                    <h3 className="text-2xl font-bold">{t('syllabus.intensive_title')}</h3>
+                    <p className="text-gray-500 text-sm mt-2">{t('syllabus.intensive_subtitle')}</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-0 max-w-6xl mx-auto border border-white/10 rounded-3xl overflow-hidden bg-card-bg/50 backdrop-blur-sm">
@@ -190,7 +194,7 @@ export function Syllabus() {
                     <div className="relative border-b lg:border-b-0 lg:border-r border-white/10">
                         <div className="p-6 bg-primary/10 border-b border-primary/20 sticky top-0 z-10 backdrop-blur-md">
                             <h4 className="text-xl font-bold text-primary flex items-center gap-2">
-                                <Globe className="w-5 h-5" /> Web Engine
+                                <Globe className="w-5 h-5" /> {t('syllabus.web_engine')}
                             </h4>
                         </div>
                         <div className="bg-dark-bg/50">
@@ -204,7 +208,7 @@ export function Syllabus() {
                     <div className="relative">
                         <div className="p-6 bg-secondary/10 border-b border-secondary/20 sticky top-0 z-10 backdrop-blur-md">
                             <h4 className="text-xl font-bold text-secondary flex items-center gap-2">
-                                <Brain className="w-5 h-5" /> AI Brain
+                                <Brain className="w-5 h-5" /> {t('syllabus.ai_brain')}
                             </h4>
                         </div>
                         <div className="bg-dark-bg/50">
@@ -216,6 +220,37 @@ export function Syllabus() {
 
                 </div>
             </div>
+
+            {/* --- Video Explained Section - Moved to Bottom & Medium Size --- */}
+            <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="max-w-3xl mx-auto px-4" // Changed from max-w-4xl to max-w-3xl for medium size
+            >
+                <div className="text-center mb-8">
+                    <h3 className="text-2xl font-bold flex items-center justify-center gap-3">
+                        <Play className="fill-primary text-primary" /> {t('syllabus.video_title')}
+                    </h3>
+                </div>
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border border-white/20 bg-card-bg group">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent pointer-events-none z-10" />
+                    <div className="relative aspect-video bg-black">
+                        {/* Placeholder for future specific roadmap video */}
+                        <iframe
+                            width="100%"
+                            height="100%"
+                            src="https://www.youtube.com/embed/C2NBibuLQmw?si=hE0CcJJG2jqB2ui-"
+                            title="Roadmap Video"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="absolute inset-0 z-0"
+                        />
+                    </div>
+                </div>
+            </motion.div>
 
         </Section>
     )

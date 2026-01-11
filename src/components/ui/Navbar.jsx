@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Rocket } from 'lucide-react'
 import { Button } from './Button'
+import { LanguageSwitcher } from '../LanguageSwitcher'
+import { useLanguage } from '../../context/LanguageContext'
 
 export function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const { t } = useLanguage()
 
     useEffect(() => {
         const handleScroll = () => {
@@ -50,15 +53,21 @@ export function Navbar() {
                             </a>
                         ))}
                     </div>
-                    <Button size="sm" onClick={() => document.getElementById('register').scrollIntoView({ behavior: 'smooth' })}>
-                        Apply Now
-                    </Button>
+                    <div className="flex items-center gap-3">
+                        <LanguageSwitcher />
+                        <Button size="sm" onClick={() => document.getElementById('register').scrollIntoView({ behavior: 'smooth' })}>
+                            {t('nav.register')}
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Mobile Menu Toggle */}
-                <button className="md:hidden text-white" onClick={() => setMobileMenuOpen(true)}>
-                    <Menu />
-                </button>
+                <div className="md:hidden flex items-center gap-4">
+                    <LanguageSwitcher />
+                    <button className="text-white" onClick={() => setMobileMenuOpen(true)}>
+                        <Menu />
+                    </button>
+                </div>
 
                 {/* Mobile Menu Overlay */}
                 <AnimatePresence>
@@ -94,7 +103,7 @@ export function Navbar() {
                                     setMobileMenuOpen(false);
                                     document.getElementById('register').scrollIntoView();
                                 }}>
-                                    Apply Now
+                                    {t('nav.register')}
                                 </Button>
                             </div>
                         </motion.div>

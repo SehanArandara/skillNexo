@@ -1,7 +1,10 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap');
 
 @theme {
   --font-sans: "Poppins", system-ui, sans-serif;
+  --font-sinhala: "Noto Sans Sinhala", system-ui, sans-serif;
   --color-primary: #3b82f6;
   --color-secondary: #8b5cf6;
   --color-accent: #f472b6;
@@ -18,4 +21,12 @@ body {
   background-color: var(--color-dark-bg);
   color: white;
   font-family: var(--font-sans);
+}
+
+.font-sinhala body {
+  font-family: var(--font-sinhala);
+}
+
+.font-sinhala {
+  font-family: var(--font-sinhala);
 }

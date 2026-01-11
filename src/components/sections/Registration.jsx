@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Section } from '../ui/Section'
 import { Button } from '../ui/Button'
-import { supabase } from '../../lib/supabase'
+// import { supabase } from '../../lib/supabase' // Commented out in original
 import { motion } from 'framer-motion'
 import { CheckCircle, AlertCircle } from 'lucide-react'
+import { useLanguage } from '../../context/LanguageContext'
 
 export function Registration() {
+    const { t } = useLanguage()
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -38,8 +40,8 @@ export function Registration() {
         <Section id="register" dark className="relative overflow-hidden">
             <div className="max-w-xl mx-auto relative z-10">
                 <div className="text-center mb-10">
-                    <h2 className="text-3xl md:text-5xl font-bold mb-4">Secure Your Spot</h2>
-                    <p className="text-gray-400">Join the waitlist for the next cohort. Limited seats available.</p>
+                    <h2 className="text-3xl md:text-5xl font-bold mb-4">{t('registration.title')}</h2>
+                    <p className="text-gray-400">{t('registration.subtitle')}</p>
                 </div>
 
                 <motion.form
@@ -54,26 +56,26 @@ export function Registration() {
                             <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto">
                                 <CheckCircle size={32} />
                             </div>
-                            <h3 className="text-2xl font-bold text-white">Registration Complete!</h3>
-                            <p className="text-gray-400">We've sent a confirmation email. Check your inbox to get started.</p>
-                            <Button type="button" variant="outline" onClick={() => setStatus('idle')}>Register Another</Button>
+                            <h3 className="text-2xl font-bold text-white">{t('registration.success_title')}</h3>
+                            <p className="text-gray-400">{t('registration.success_msg')}</p>
+                            <Button type="button" variant="outline" onClick={() => setStatus('idle')}>{t('registration.register_another')}</Button>
                         </div>
                     ) : (
                         <>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">Full Name</label>
+                                <label className="text-sm font-medium text-gray-300">{t('registration.name_label')}</label>
                                 <input
                                     type="text"
                                     required
                                     className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
-                                    placeholder="John Doe"
+                                    placeholder={t('registration.name_placeholder')}
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">Email Address</label>
+                                <label className="text-sm font-medium text-gray-300">{t('registration.email_label')}</label>
                                 <input
                                     type="email"
                                     required
@@ -85,27 +87,27 @@ export function Registration() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">WhatsApp Number</label>
+                                <label className="text-sm font-medium text-gray-300">{t('registration.whatsapp_label')}</label>
                                 <input
                                     type="tel"
                                     required
                                     className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
-                                    placeholder="+1 234 567 890"
+                                    placeholder="07XXXXXX"
                                     value={formData.whatsapp}
                                     onChange={e => setFormData({ ...formData, whatsapp: e.target.value })}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">Current Knowledge Level</label>
+                                <label className="text-sm font-medium text-gray-300">{t('registration.level_label')}</label>
                                 <select
                                     className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
                                     value={formData.level}
                                     onChange={e => setFormData({ ...formData, level: e.target.value })}
                                 >
-                                    <option value="beginner">Beginner (Reviewing Basics)</option>
-                                    <option value="intermediate">Intermediate (Built a few apps)</option>
-                                    <option value="advanced">Advanced (looking to specialize)</option>
+                                    <option value="beginner">{t('registration.level_options.beginner')}</option>
+                                    <option value="intermediate">{t('registration.level_options.intermediate')}</option>
+                                    <option value="advanced">{t('registration.level_options.advanced')}</option>
                                 </select>
                             </div>
 
@@ -117,7 +119,7 @@ export function Registration() {
                             )}
 
                             <Button type="submit" disabled={status === 'loading'} className="w-full text-lg font-semibold py-4">
-                                {status === 'loading' ? 'Processing...' : 'Complete Registration'}
+                                {status === 'loading' ? t('registration.processing') : t('registration.submit_btn')}
                             </Button>
                         </>
                     )}

@@ -2,8 +2,11 @@ import { motion } from 'framer-motion'
 import { Button } from '../ui/Button'
 import { Section } from '../ui/Section'
 import { Play } from 'lucide-react'
+import { useLanguage } from '../../context/LanguageContext'
 
 export function Hero() {
+    const { t } = useLanguage()
+
     return (
         <Section id="hero" dark className="pt-24 pb-12 md:pt-32 md:pb-20 min-h-[90vh] flex flex-col justify-center">
             {/* Background Glow */}
@@ -19,24 +22,28 @@ export function Hero() {
                     className="text-center lg:text-left space-y-6"
                 >
                     <div className="inline-block px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold mb-2">
-                        🚀 Join the Top 1% of AI Engineers
+                        {t('hero.badge')}
                     </div>
 
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-                        The Ultimate All-in-One Course <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Web Development meets AI & ML.</span>
+                        {t('hero.title_line1')} <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{t('hero.title_line2')}</span>
                     </h1>
 
                     <p className="text-lg text-gray-400 font-light max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                        A comprehensive 2-month masterclass covering Full-Stack Web Dev and AI/ML. Master modern technology through a structured, step-by-step curriculum. 16 days of deep learning to transform your career.
+                        {t('hero.description')}
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-2">
-                        <Button size="lg" className="w-full sm:w-auto hover:shadow-primary/50 text-base py-3">
-                            Register Now
+                        <Button
+                            size="lg"
+                            className="w-full sm:w-auto hover:shadow-primary/50 text-base py-3"
+                            onClick={() => document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' })}
+                        >
+                            {t('hero.cta_register')}
                         </Button>
                         <Button variant="outline" size="lg" className="w-full sm:w-auto gap-2 text-base py-3">
-                            <Play size={18} /> Watch Promo
+                            <Play size={18} /> {t('hero.cta_promo')}
                         </Button>
                     </div>
                 </motion.div>
