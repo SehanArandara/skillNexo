@@ -7,6 +7,7 @@ import { LMSSneakPeek } from '../components/sections/LMSPreview'
 import { Pricing } from '../components/sections/Pricing'
 import { Registration } from '../components/sections/Registration'
 import { Contact } from '../components/sections/Contact'
+import { Footer } from '../components/ui/Footer'
 
 export default function Home() {
     return (
@@ -23,10 +24,7 @@ export default function Home() {
                 <Registration />
             </main>
 
-            {/* Footer */}
-            <footer className="py-8 bg-black text-center text-gray-600 text-sm">
-                <p>&copy; {new Date().getFullYear()} 1% Engineer. All rights reserved.</p>
-            </footer>
+            <Footer />
         </div>
     )
 }
