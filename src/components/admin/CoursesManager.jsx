@@ -1,0 +1,331 @@
+import React, { useState } from 'react';
+import {
+    Plus,
+    Edit2,
+    Trash2,
+    Search,
+    X,
+    CheckCircle,
+    AlertCircle,
+    Clock,
+    Calendar,
+    Tag,
+    User
+} from 'lucide-react';
+import initialCourses from '../../data/courses.json';
+
+const CoursesManager = () => {
+    const [courses, setCourses] = useState(initialCourses);
+    const [showForm, setShowForm] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [notification, setNotification] = useState(null);
+
+    const initialFormState = {
+        courseName: '',
+        instructor: '',
+        durationDays: '',
+        onlineClasses: '',
+        category: 'Web Dev',
+        isActive: true,
+        remark: ''
+    };
+
+    const [formData, setFormData] = useState(initialFormState);
+
+    // Categories for dropdown
+    const categories = ['AI ML', 'Web Dev', 'Mobile Dev', 'Data Science', 'Cloud Computing', 'Other'];
+
+    const showNotification = (message, type = 'success') => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 3000);
+    };
+
+    const handleAddNew = () => {
+        setFormData(initialFormState);
+        setEditingId(null);
+        setShowForm(true);
+    };
+
+    const handleEdit = (course) => {
+        setFormData(course);
+        setEditingId(course.id);
+        setShowForm(true);
+    };
+
+    const handleDelete = (id) => {
+        if (window.confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
+            setCourses(courses.filter(course => course.id !== id));
+            showNotification('Course deleted successfully', 'success');
+        }
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        // Basic Validation
+        if (!formData.courseName || !formData.instructor) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+
+        if (editingId) {
+            // Update existing
+            setCourses(courses.map(course =>
+                course.id === editingId ? { ...formData, id: editingId } : course
+            ));
+            showNotification('Course updated successfully');
+        } else {
+            // Add new
+            const newCourse = {
+                ...formData,
+                id: Math.max(...courses.map(c => c.id), 0) + 1
+            };
+            setCourses([...courses, newCourse]);
+            showNotification('Course created successfully');
+        }
+        setShowForm(false);
+    };
+
+    const filteredCourses = courses.filter(course =>
+        course.courseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    return (
+        <div className="space-y-6">
+            {/* Header Actions */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                <div className="relative w-full md:w-96">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <input
+                        type="text"
+                        placeholder="Search courses..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-200 focus:ring-2 focus:ring-blue-500/50"
+                    />
+                </div>
+                <button
+                    onClick={handleAddNew}
+                    className="w-full md:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-all shadow-lg shadow-blue-500/20"
+                >
+                    <Plus className="w-4 h-4" />
+                    Add New Course
+                </button>
+            </div>
+
+            {/* Notification Toast */}
+            {notification && (
+                <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-xl animate-fade-in ${notification.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                    }`}>
+                    {notification.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+                    <span>{notification.message}</span>
+                </div>
+            )}
+
+            {/* Course Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                {filteredCourses.map((course) => (
+                    <div key={course.id} className="bg-slate-900/40 backdrop-blur border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all group">
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h3 className="text-lg font-bold text-slate-100">{course.courseName}</h3>
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-full border ${course.isActive
+                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                            : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                                        }`}>
+                                        {course.isActive ? 'ACTIVE' : 'INACTIVE'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm text-blue-400">
+                                    <User className="w-3 h-3" />
+                                    {course.instructor}
+                                </div>
+                            </div>
+                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    onClick={() => handleEdit(course)}
+                                    className="p-2 bg-slate-800 hover:bg-blue-600/20 text-slate-400 hover:text-blue-400 rounded-lg transition-colors"
+                                >
+                                    <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(course.id)}
+                                    className="p-2 bg-slate-800 hover:bg-red-600/20 text-slate-400 hover:text-red-400 rounded-lg transition-colors"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                            <div className="p-2 bg-slate-950/50 rounded-lg border border-slate-800/50">
+                                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" /> Duration
+                                </p>
+                                <p className="text-sm text-slate-300">{course.durationDays} Days</p>
+                            </div>
+                            <div className="p-2 bg-slate-950/50 rounded-lg border border-slate-800/50">
+                                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
+                                    <Tag className="w-3 h-3" /> Category
+                                </p>
+                                <p className="text-sm text-slate-300">{course.category}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="text-sm text-slate-400 flex items-start gap-2">
+                                <Calendar className="w-4 h-4 mt-0.5 shrink-0" />
+                                <span className="text-xs md:text-sm">{course.onlineClasses}</span>
+                            </div>
+                            {course.remark && (
+                                <div className="text-sm text-slate-500 italic border-l-2 border-slate-700 pl-3">
+                                    "{course.remark}"
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Modal Form */}
+            {showForm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                        <div className="sticky top-0 bg-slate-900/95 backdrop-blur border-b border-slate-800 p-6 flex justify-between items-center z-10">
+                            <h2 className="text-xl font-bold text-white">
+                                {editingId ? 'Edit Course' : 'Create New Course'}
+                            </h2>
+                            <button
+                                onClick={() => setShowForm(false)}
+                                className="p-1 hover:bg-slate-800 rounded-full transition-colors"
+                            >
+                                <X className="w-6 h-6 text-slate-400" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className="text-sm font-medium text-slate-300">Course Name</label>
+                                    <input
+                                        required
+                                        type="text"
+                                        value={formData.courseName}
+                                        onChange={(e) => setFormData({ ...formData, courseName: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
+                                        placeholder="e.g. Advanced AI Integration"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-slate-300">Instructor</label>
+                                    <input
+                                        required
+                                        type="text"
+                                        value={formData.instructor}
+                                        onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
+                                        placeholder="Course Instructor"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-slate-300">Category</label>
+                                    <select
+                                        value={formData.category}
+                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
+                                    >
+                                        {categories.map(cat => (
+                                            <option key={cat} value={cat}>{cat}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-slate-300">Duration (Days)</label>
+                                    <input
+                                        required
+                                        type="number"
+                                        value={formData.durationDays}
+                                        onChange={(e) => setFormData({ ...formData, durationDays: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
+                                        placeholder="e.g. 60"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-slate-300">Status</label>
+                                    <div className="flex items-center gap-4 mt-2">
+                                        <label className="flex items-center cursor-pointer gap-2">
+                                            <input
+                                                type="radio"
+                                                name="status"
+                                                checked={formData.isActive}
+                                                onChange={() => setFormData({ ...formData, isActive: true })}
+                                                className="w-4 h-4 text-blue-600 bg-slate-900 border-slate-700 focus:ring-blue-500"
+                                            />
+                                            <span className="text-sm text-slate-300">Active</span>
+                                        </label>
+                                        <label className="flex items-center cursor-pointer gap-2">
+                                            <input
+                                                type="radio"
+                                                name="status"
+                                                checked={!formData.isActive}
+                                                onChange={() => setFormData({ ...formData, isActive: false })}
+                                                className="w-4 h-4 text-red-600 bg-slate-900 border-slate-700 focus:ring-red-500"
+                                            />
+                                            <span className="text-sm text-slate-300">Inactive</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className="text-sm font-medium text-slate-300">Online Classes Schedule</label>
+                                    <input
+                                        type="text"
+                                        value={formData.onlineClasses}
+                                        onChange={(e) => setFormData({ ...formData, onlineClasses: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
+                                        placeholder="e.g. 16 days / 8 weeks - 2 classes for one week"
+                                    />
+                                </div>
+
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className="text-sm font-medium text-slate-300">Remarks</label>
+                                    <textarea
+                                        value={formData.remark}
+                                        onChange={(e) => setFormData({ ...formData, remark: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all min-h-[80px]"
+                                        placeholder="Additional notes..."
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowForm(false)}
+                                    className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-6 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 rounded-lg shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                >
+                                    {editingId ? 'Save Changes' : 'Create Course'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default CoursesManager;

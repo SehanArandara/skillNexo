@@ -1,0 +1,36 @@
+[
+    {
+        "id": 1,
+        "name": "Saman Kumara",
+        "email": "saman@example.com",
+        "whatsapp": "0771234567",
+        "paymentStatus": "Paid",
+        "accountStatus": "Active",
+        "enrolledCourses": [
+            "Introduction to AI & Machine Learning"
+        ],
+        "registeredDate": "2024-01-15"
+    },
+    {
+        "id": 2,
+        "name": "Nimali Perera",
+        "email": "nimali@example.com",
+        "whatsapp": "0719876543",
+        "paymentStatus": "Pending",
+        "accountStatus": "Inactive",
+        "enrolledCourses": [],
+        "registeredDate": "2024-01-20"
+    },
+    {
+        "id": 3,
+        "name": "Kasun Kalhara",
+        "email": "kasun@example.com",
+        "whatsapp": "0765551234",
+        "paymentStatus": "Paid",
+        "accountStatus": "Active",
+        "enrolledCourses": [
+            "Full Stack Web Development"
+        ],
+        "registeredDate": "2024-02-01"
+    }
+]

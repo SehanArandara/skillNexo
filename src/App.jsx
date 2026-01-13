@@ -4,6 +4,10 @@ import Home from './pages/Home';
 import RefundPolicy from './pages/RefundPolicy';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
+import StudentLogin from './pages/StudentLogin';
+import StudentDashboard from './pages/StudentDashboard';
 
 function App() {
   return (
@@ -15,6 +19,15 @@ function App() {
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
+
+          {/* Admin Routes */}
+          <Route path="/AdminPanel" element={<AdminLogin />} />
+          <Route path="/AdminPanel/dashboard" element={<AdminDashboard />} />
+
+          {/* Student Routes */}
+          <Route path="/lms" element={<StudentLogin />} />
+          <Route path="/lms/dashboard" element={<StudentDashboard />} />
+
           {/* Catch all redirect to English Home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

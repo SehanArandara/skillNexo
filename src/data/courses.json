@@ -1,0 +1,22 @@
+[
+    {
+        "id": 1,
+        "courseName": "Introduction to AI & Machine Learning",
+        "instructor": "Sehan Arandara",
+        "durationDays": 60,
+        "onlineClasses": "16 days / 8 weeks - 2 classes per week",
+        "category": "AI ML",
+        "isActive": true,
+        "remark": "Perfect for beginners starting their AI journey"
+    },
+    {
+        "id": 2,
+        "courseName": "Full Stack Web Development",
+        "instructor": "Sehan Arandara",
+        "durationDays": 90,
+        "onlineClasses": "24 days / 12 weeks - 2 classes per week",
+        "category": "Web Dev",
+        "isActive": true,
+        "remark": "Covers React, Node.js, and Supabase"
+    }
+]
