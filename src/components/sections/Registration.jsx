@@ -12,12 +12,48 @@ export function Registration() {
         name: '',
         email: '',
         whatsapp: '',
-        level: 'beginner'
+        level: ''
     })
     const [status, setStatus] = useState('idle') // idle, loading, success, error
     const [errorMsg, setErrorMsg] = useState('')
+    const [courses, setCourses] = useState([])
+    const [selectedCourse, setSelectedCourse] = useState('')
+
+    // Fetch courses on mount
+    useState(() => {
+        const fetchCourses = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('courses')
+                    .select('id, course_name, category')
+                    .eq('is_active', true)
+
+                if (error) throw error
+                if (data) setCourses(data)
+            } catch (err) {
+                console.error('Error fetching courses:', err)
+                // Fallback to JSON data if DB fetch fails (for demo purposes)
+                import('../../data/courses.json').then(mod => {
+                    setCourses(mod.default.map(c => ({
+                        id: c.id,
+                        course_name: c.courseName,
+                        category: c.category
+                    })))
+                })
+            }
+        }
+        fetchCourses()
+    }, [])
 
     const validateForm = () => {
+        // Required Field Checks
+        if (!formData.name.trim()) return "Name is required"
+        if (!formData.email.trim()) return "Email is required"
+        if (!formData.whatsapp.trim()) return "WhatsApp number is required"
+        if (!selectedCourse) return "Please select a course"
+        if (!formData.level) return "Please select your experience level"
+
+        // Format & Length Checks
         if (formData.name.trim().length < 3) return t('registration.validation.name_short')
         if (formData.name.length > 50) return t('registration.validation.name_long')
 
@@ -51,14 +87,16 @@ export function Registration() {
                         name: formData.name,
                         email: formData.email,
                         whatsapp: formData.whatsapp,
-                        level: formData.level
+                        level: formData.level,
+                        course_id: parseInt(selectedCourse)
                     }
                 ])
 
             if (error) throw error
 
             setStatus('success')
-            setFormData({ name: '', email: '', whatsapp: '', level: 'beginner' })
+            setFormData({ name: '', email: '', whatsapp: '', level: '' })
+            setSelectedCourse('')
         } catch (error) {
             console.error('Error registering student:', error.message)
             setStatus('error')
@@ -117,6 +155,24 @@ export function Registration() {
                                 />
                             </div>
 
+                            {/* Course Selection */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300">Select Course</label>
+                                <select
+                                    required
+                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+                                    value={selectedCourse}
+                                    onChange={e => setSelectedCourse(e.target.value)}
+                                >
+                                    <option value="">-- Choose a Course --</option>
+                                    {courses.map(course => (
+                                        <option key={course.id} value={course.id}>
+                                            {course.course_name} ({course.category})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300">{t('registration.whatsapp_label')}</label>
                                 <input
@@ -142,6 +198,7 @@ export function Registration() {
                                     value={formData.level}
                                     onChange={e => setFormData({ ...formData, level: e.target.value })}
                                 >
+                                    <option value="">-- Select Experience Level --</option>
                                     <option value="beginner">{t('registration.level_options.beginner')}</option>
                                     <option value="intermediate">{t('registration.level_options.intermediate')}</option>
                                     <option value="advanced">{t('registration.level_options.advanced')}</option>

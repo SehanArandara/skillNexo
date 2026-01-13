@@ -1,29 +1,44 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
-import adminUsers from '../data/admin_users.json';
+import { supabase } from '../lib/supabase';
 
 const AdminLogin = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
 
-        const admin = adminUsers.find(
-            (user) => user.username === username && user.password === password
-        );
+        try {
+            // Check against 'admin_users' table in Supabase
+            const { data, error } = await supabase
+                .from('admin_users')
+                .select('*')
+                .eq('username', username)
+                .eq('password', password)
+                .single();
 
-        if (admin) {
-            // In a real app, we'd set a session/token here
-            localStorage.setItem('isAdminAuthenticated', 'true');
-            localStorage.setItem('adminUser', JSON.stringify({ username: admin.username, role: admin.role }));
-            navigate('/AdminPanel/dashboard');
-        } else {
-            setError('Invalid credentials. Please try again.');
+            if (error) throw error;
+
+            if (data) {
+                // Set session
+                localStorage.setItem('isAdminAuthenticated', 'true');
+                localStorage.setItem('adminUser', JSON.stringify({ username: data.username, role: data.role }));
+                navigate('/AdminPanel/dashboard');
+            } else {
+                setError('Invalid credentials. Please try again.');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('Invalid credentials or connection error.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
