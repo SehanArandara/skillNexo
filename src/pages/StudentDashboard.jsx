@@ -6,27 +6,87 @@ import {
     LogOut,
     Bell,
     User,
-    PlayCircle
+    PlayCircle,
+    Loader2
 } from 'lucide-react';
-import studentsData from '../data/students.json';
+import { supabase } from '../lib/supabase';
 
 const StudentDashboard = () => {
     const navigate = useNavigate();
     const [student, setStudent] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const isAuthenticated = localStorage.getItem('isStudentAuthenticated');
-        const userStr = localStorage.getItem('studentUser');
+        const fetchStudentData = async () => {
+            const isAuthenticated = localStorage.getItem('isStudentAuthenticated');
+            const userStr = localStorage.getItem('studentUser');
 
-        if (!isAuthenticated || !userStr) {
-            navigate('/lms');
-            return;
-        }
+            if (!isAuthenticated || !userStr) {
+                navigate('/lms');
+                return;
+            }
 
-        // Reload student data from JSON to get latest enrollments (simulating backend fetch)
-        const userObj = JSON.parse(userStr);
-        const liveData = studentsData.find(s => s.id === userObj.id);
-        setStudent(liveData || userObj);
+            try {
+                const userObj = JSON.parse(userStr);
+
+                // Fetch latest student details and enrollments from Supabase
+                const { data: lmsUser, error: lmsError } = await supabase
+                    .from('lms_users')
+                    .select(`
+                        *,
+                        registered_student (
+                            name,
+                            email
+                        ),
+                        enrollments (
+                            id,
+                            courses (
+                                id,
+                                course_name,
+                                instructor,
+                                duration_days,
+                                description,
+                                thumbnail_url
+                            )
+                        )
+                    `)
+                    .eq('id', userObj.id)
+                    .single();
+
+                if (lmsError || !lmsUser) {
+                    throw new Error('User not found');
+                }
+
+                const transformedStudent = {
+                    id: lmsUser.id,
+                    name: lmsUser.registered_student.name,
+                    email: lmsUser.email,
+                    enrolledCourses: lmsUser.enrollments?.map(e => ({
+                        id: e.courses.id,
+                        name: e.courses.course_name,
+                        instructor: e.courses.instructor,
+                        duration: e.courses.duration_days,
+                        description: e.courses.description,
+                        enrollmentId: e.id
+                    })) || []
+                };
+
+                setStudent(transformedStudent);
+
+                // Update localStorage with latest data
+                localStorage.setItem('studentUser', JSON.stringify(transformedStudent));
+
+            } catch (error) {
+                console.error('Error fetching student dashboard data:', error);
+                // If there's an error, we can still use the cached local storage data as fallback
+                const fallbackData = JSON.parse(userStr);
+                setStudent(fallbackData);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStudentData();
     }, [navigate]);
 
     const handleLogout = () => {
@@ -34,6 +94,17 @@ const StudentDashboard = () => {
         localStorage.removeItem('studentUser');
         navigate('/lms');
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-12 h-12 text-emerald-500 animate-spin" />
+                    <p className="text-slate-400 animate-pulse">Loading your courses...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (!student) return null;
 
@@ -76,7 +147,7 @@ const StudentDashboard = () => {
                     {/* Welcome Section */}
                     <div className="flex flex-col md:flex-row gap-6 items-center justify-between bg-gradient-to-r from-slate-900 to-slate-900/50 border border-slate-800 rounded-2xl p-8 shadow-xl relative overflow-hidden">
                         <div className="relative z-10">
-                            <h1 className="text-3xl font-bold text-white mb-2">Welcome back, {student.name.split(' ')[0]}! 👋</h1>
+                            <h1 className="text-3xl font-bold text-white mb-2">Welcome back, {student.name?.split(' ')[0]}! 👋</h1>
                             <p className="text-slate-400 max-w-xl">
                                 You are enrolled in <span className="text-emerald-400 font-semibold">{student.enrolledCourses?.length || 0} courses</span>.
                                 Continue where you left off.
@@ -93,9 +164,9 @@ const StudentDashboard = () => {
                         </h2>
 
                         {student.enrolledCourses && student.enrolledCourses.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {student.enrolledCourses.map((courseName, index) => (
-                                    <div key={index} className="group bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-emerald-500/50 transition-all hover:-translate-y-1 shadow-lg">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                                {student.enrolledCourses.map((course, index) => (
+                                    <div key={course.id || index} className="group bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden hover:border-emerald-500/50 transition-all hover:-translate-y-2 shadow-2xl">
                                         <div className="h-32 bg-slate-800 relative">
                                             {/* Placeholder Course Art */}
                                             <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
@@ -106,14 +177,19 @@ const StudentDashboard = () => {
                                             </div>
                                         </div>
                                         <div className="p-5">
-                                            <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">{courseName}</h3>
-                                            <p className="text-sm text-slate-400 mb-4">Master the fundamentals and advanced concepts.</p>
+                                            <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">{course.name}</h3>
+                                            <p className="text-sm text-slate-400 mb-4 line-clamp-2">
+                                                {course.description || `Course by ${course.instructor}. Master the fundamentals and advanced concepts.`}
+                                            </p>
 
                                             <div className="w-full bg-slate-800 h-1.5 rounded-full mb-4 overflow-hidden">
                                                 <div className="bg-emerald-500 h-full rounded-full" style={{ width: '0%' }}></div>
                                             </div>
 
-                                            <button className="w-full py-2.5 bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-300 rounded-xl font-medium transition-all flex items-center justify-center gap-2 group-hover:bg-emerald-600 group-hover:text-white">
+                                            <button
+                                                className="w-full py-2.5 bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-300 rounded-xl font-medium transition-all flex items-center justify-center gap-2 group-hover:bg-emerald-600 group-hover:text-white"
+                                                onClick={() => navigate(`/lms/course/${course.id}`)}
+                                            >
                                                 <PlayCircle className="w-4 h-4" />
                                                 Start Learning
                                             </button>

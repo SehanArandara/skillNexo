@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Search,
     CheckCircle,
@@ -11,26 +11,143 @@ import {
     DollarSign,
     UserCheck,
     UserX,
-    BookOpen
+    BookOpen,
+    Edit,
+    Send,
+    Loader2
 } from 'lucide-react';
-import initialStudents from '../../data/students.json';
-import coursesData from '../../data/courses.json';
+import { supabase } from '../../lib/supabase';
+import { sendWelcomeEmail, generatePassword } from '../../utils/emailService';
+
 
 const StudentsManager = () => {
-    const [students, setStudents] = useState(initialStudents);
+    const [students, setStudents] = useState([]);
+    const [courses, setCourses] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterStatus, setFilterStatus] = useState('All'); // All, Active, Inactive, Pending Payment
+    const [filterStatus, setFilterStatus] = useState('All');
     const [notification, setNotification] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // Enrollment Modal State
+    // Modals & Selections
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editingStudent, setEditingStudent] = useState(null);
     const [enrollModalOpen, setEnrollModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [selectedCourseId, setSelectedCourseId] = useState('');
+    const [isSendingEmail, setIsSendingEmail] = useState(false);
     const [generatedCredentials, setGeneratedCredentials] = useState(null);
+
+    // Action Confirmation States
+    const [confirmModal, setConfirmModal] = useState({ open: false, type: '', data: null });
 
     const showNotification = (message, type = 'success') => {
         setNotification({ message, type });
-        setTimeout(() => setNotification(null), 3000);
+        setTimeout(() => setNotification(null), 4000);
+    };
+
+    // Fetch students and courses from Supabase
+    useEffect(() => {
+        fetchStudents();
+        fetchCourses();
+    }, []);
+
+    const fetchStudents = async () => {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('registered_student')
+                .select(`
+                    *,
+                    enrollments (
+                        id,
+                        course_id,
+                        courses (
+                            course_name
+                        )
+                    )
+                `)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            console.log(data);
+            // Transform data to match our UI structure
+            const transformedStudents = data.map(student => ({
+                ...student,
+                enrolledCourses: student.enrollments?.map(e => e.courses?.course_name) || []
+            }));
+
+            setStudents(transformedStudents);
+        } catch (error) {
+            console.error('Error fetching students:', error);
+            showNotification('Error loading students', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchCourses = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('courses')
+                .select('*')
+                .eq('is_active', true)
+                .order('course_name');
+
+            if (error) throw error;
+            setCourses(data || []);
+        } catch (error) {
+            console.error('Error fetching courses:', error);
+        }
+    };
+
+    const openEditModal = (student) => {
+        setEditingStudent({ ...student });
+        setEditModalOpen(true);
+    };
+
+    const handleEditStudent = async () => {
+        try {
+            const { error } = await supabase
+                .from('registered_student')
+                .update({
+                    name: editingStudent.name,
+                    email: editingStudent.email,
+                    whatsapp: editingStudent.whatsapp
+                })
+                .eq('id', editingStudent.id);
+
+            if (error) throw error;
+
+            showNotification('Student details updated successfully');
+            setEditModalOpen(false);
+            fetchStudents(); // Refresh list
+        } catch (error) {
+            console.error('Error updating student:', error);
+            showNotification('Error updating student', 'error');
+        }
+    };
+
+    const handleUpdatePaymentStatus = async (student, newStatus) => {
+        try {
+            const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
+            console.log(newStatus)
+            const { error } = await supabase
+                .from('registered_student')
+                .update({
+                    payment_status: newStatus,
+                    verified_by: adminUser.username || 'Admin'
+                })
+                .eq('id', student.id);
+
+            if (error) throw error;
+
+            showNotification(`Payment status for ${student.name} updated to ${newStatus}`);
+            fetchStudents();
+            setConfirmModal({ open: false, type: '', data: null });
+        } catch (error) {
+            console.error('Error updating payment:', error);
+            showNotification('Failed to update payment status', 'error');
+        }
     };
 
     const openEnrollModal = (student) => {
@@ -40,86 +157,163 @@ const StudentsManager = () => {
         setEnrollModalOpen(true);
     };
 
-    const handleEnrollAndPay = () => {
+    const handlePaymentVerificationAndEnroll = async () => {
         if (!selectedCourseId) {
             showNotification('Please select a course', 'error');
             return;
         }
 
-        const courseToEnroll = coursesData.find(c => c.id === parseInt(selectedCourseId));
-        if (!courseToEnroll) return;
+        setIsSendingEmail(true);
+        try {
+            const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
+            const course = courses.find(c => c.id === parseInt(selectedCourseId));
 
-        // Generate temporary password
-        const autoPassword = `LMS@${Math.floor(1000 + Math.random() * 9000)}`;
-
-        setStudents(students.map(student => {
-            if (student.id === selectedStudent.id) {
-                const currentCourses = student.enrolledCourses || [];
-                // Avoid duplicate enrollment
-                const newCourses = currentCourses.includes(courseToEnroll.courseName)
-                    ? currentCourses
-                    : [...currentCourses, courseToEnroll.courseName];
-
-                return {
-                    ...student,
-                    paymentStatus: 'Paid',
-                    accountStatus: 'Active', // Auto-activate
-                    enrolledCourses: newCourses,
-                    tempPassword: autoPassword // Store for demo purposes
-                };
+            if (!course) {
+                throw new Error('Course not found');
             }
-            return student;
-        }));
 
-        setGeneratedCredentials({
-            email: selectedStudent.email,
-            password: autoPassword,
-            course: courseToEnroll.courseName
-        });
+            // 1. Update payment status
+            const { error: updateError } = await supabase
+                .from('registered_student')
+                .update({
+                    payment_status: 'Paid',
+                    account_status: 'Active',
+                    payment_verified_at: new Date().toISOString(),
+                    verified_by: adminUser.username || 'Admin'
+                })
+                .eq('id', selectedStudent.id);
 
-        showNotification('Payment verified & User enrolled successfully!');
+            if (updateError) throw updateError;
+
+            // 2. Check if LMS user already exists
+            const { data: existingLmsUser } = await supabase
+                .from('lms_users')
+                .select('*')
+                .eq('student_id', selectedStudent.id)
+                .single();
+
+            let lmsUserId;
+            let password;
+
+            if (existingLmsUser) {
+                lmsUserId = existingLmsUser.id;
+                password = existingLmsUser.password;
+
+                // Activate the account if it was deactivated
+                await supabase
+                    .from('lms_users')
+                    .update({ is_active: true })
+                    .eq('id', lmsUserId);
+            } else {
+                // 3. Create LMS user with generated password
+                password = generatePassword();
+                const { data: newLmsUser, error: lmsError } = await supabase
+                    .from('lms_users')
+                    .insert([{
+                        student_id: selectedStudent.id,
+                        email: selectedStudent.email,
+                        password: password,
+                        is_active: true
+                    }])
+                    .select()
+                    .single();
+
+                if (lmsError) throw lmsError;
+                lmsUserId = newLmsUser.id;
+            }
+
+            // 4. Create enrollment record
+            const { error: enrollError } = await supabase
+                .from('enrollments')
+                .insert([{
+                    student_id: selectedStudent.id,
+                    lms_user_id: lmsUserId,
+                    course_id: parseInt(selectedCourseId),
+                    enrolled_by: adminUser.username || 'Admin',
+                    status: 'active'
+                }]);
+
+            // If enrollment already exists, that's okay (unique constraint will prevent duplicate)
+            if (enrollError && !enrollError.message.includes('duplicate')) {
+                throw enrollError;
+            }
+
+            // 5. Send welcome email with credentials
+            const emailResult = await sendWelcomeEmail(selectedStudent.email, {
+                email: selectedStudent.email,
+                password: password,
+                courseName: course.course_name
+            });
+
+            setGeneratedCredentials({
+                email: selectedStudent.email,
+                password: password,
+                courseName: course.course_name
+            });
+
+            showNotification('Payment verified, student enrolled, and email sent!');
+            fetchStudents(); // Refresh the list
+
+        } catch (error) {
+            console.error('Error in enrollment process:', error);
+            showNotification(error.message || 'Error processing enrollment', 'error');
+        } finally {
+            setIsSendingEmail(false);
+        }
     };
 
-    const toggleAccountStatus = (id) => {
-        setStudents(students.map(student => {
-            if (student.id === id) {
-                const newStatus = student.accountStatus === 'Active' ? 'Inactive' : 'Active';
-                const newPaymentStatus = newStatus === 'Active' ? 'Paid' : 'Pending'; // Auto-update payment for simplicity, or keep separate
+    const toggleAccountStatus = async (student) => {
+        try {
+            const newStatus = student.account_status === 'Active' ? 'Inactive' : 'Active';
 
-                showNotification(
-                    `User ${student.name} is now ${newStatus}`,
-                    newStatus === 'Active' ? 'success' : 'error'
-                );
+            // Update registered student
+            const { error: studentError } = await supabase
+                .from('registered_student')
+                .update({ account_status: newStatus })
+                .eq('id', student.id);
 
-                return {
-                    ...student,
-                    accountStatus: newStatus,
-                    paymentStatus: newPaymentStatus
-                };
-            }
-            return student;
-        }));
-    };
+            if (studentError) throw studentError;
 
-    const handlePaymentUpdate = (id, status) => {
-        setStudents(students.map(student =>
-            student.id === id ? { ...student, paymentStatus: status } : student
-        ));
-        showNotification('Payment status updated', 'success');
+            // Update LMS user if exists
+            await supabase
+                .from('lms_users')
+                .update({ is_active: newStatus === 'Active' })
+                .eq('student_id', student.id);
+
+            showNotification(
+                `Student ${student.name} is now ${newStatus}`,
+                newStatus === 'Active' ? 'success' : 'error'
+            );
+
+            fetchStudents();
+            setConfirmModal({ open: false, type: '', data: null });
+        } catch (error) {
+            console.error('Error toggling account status:', error);
+            showNotification('Error updating account status', 'error');
+        }
     };
 
     const filteredStudents = students.filter(student => {
         const matchesSearch =
-            student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            student.whatsapp.includes(searchTerm);
+            student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            student.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            student.whatsapp?.includes(searchTerm);
 
         const matchesFilter =
             filterStatus === 'All' ||
-            student.accountStatus === filterStatus;
+            student.account_status === filterStatus;
 
         return matchesSearch && matchesFilter;
     });
+
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -181,13 +375,13 @@ const StudentsManager = () => {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
-                                                    {student.name.substring(0, 2).toUpperCase()}
+                                                    {student.name?.substring(0, 2).toUpperCase() || '??'}
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-slate-200">{student.name}</p>
                                                     <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
                                                         <Calendar className="w-3 h-3" />
-                                                        {student.registeredDate}
+                                                        {new Date(student.created_at).toLocaleDateString()}
                                                     </div>
                                                 </div>
                                             </div>
@@ -205,13 +399,26 @@ const StudentsManager = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${student.paymentStatus === 'Paid'
-                                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                                                : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                                                }`}>
-                                                <DollarSign className="w-3 h-3" />
-                                                {student.paymentStatus}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${student.payment_status === 'Paid'
+                                                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                                    : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                                    }`}>
+                                                    <DollarSign className="w-3 h-3" />
+                                                    {student.payment_status || 'Pending'}
+                                                </span>
+                                                <button
+                                                    onClick={() => setConfirmModal({
+                                                        open: true,
+                                                        type: 'payment',
+                                                        data: student
+                                                    })}
+                                                    className="p-1 hover:bg-slate-800 rounded text-slate-500 hover:text-blue-400 transition-colors"
+                                                    title="Change payment status"
+                                                >
+                                                    <Edit className="w-3 h-3" />
+                                                </button>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-wrap gap-1">
@@ -229,22 +436,35 @@ const StudentsManager = () => {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <button
+                                                    onClick={() => openEditModal(student)}
+                                                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700/50 text-slate-300 border border-slate-600 hover:bg-slate-700 transition-all"
+                                                    title="Edit student details"
+                                                >
+                                                    <Edit className="w-3.5 h-3.5" />
+                                                    Edit
+                                                </button>
+
+                                                <button
                                                     onClick={() => openEnrollModal(student)}
                                                     className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all"
-                                                    title="Review Payment & Enroll"
+                                                    title="Verify Payment & Enroll"
                                                 >
                                                     <BookOpen className="w-3.5 h-3.5" />
                                                     Enroll
                                                 </button>
 
                                                 <button
-                                                    onClick={() => toggleAccountStatus(student.id)}
-                                                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${student.accountStatus === 'Active'
-                                                            ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20'
-                                                            : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
+                                                    onClick={() => setConfirmModal({
+                                                        open: true,
+                                                        type: 'status',
+                                                        data: student
+                                                    })}
+                                                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${student.account_status === 'Active'
+                                                        ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20'
+                                                        : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
                                                         }`}
                                                 >
-                                                    {student.accountStatus === 'Active' ? (
+                                                    {student.account_status === 'Active' ? (
                                                         <>
                                                             <UserX className="w-3.5 h-3.5" />
                                                             Deactivate
@@ -275,6 +495,66 @@ const StudentsManager = () => {
                 </div>
             </div>
 
+            {/* Edit Student Modal */}
+            {editModalOpen && editingStudent && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl animate-fade-in">
+                        <div className="p-6 border-b border-slate-800">
+                            <h3 className="text-xl font-bold text-white">Edit Student Details</h3>
+                            <p className="text-sm text-slate-400 mt-1">Update student information</p>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-300 mb-2">Name</label>
+                                <input
+                                    type="text"
+                                    value={editingStudent.name}
+                                    onChange={(e) => setEditingStudent({ ...editingStudent, name: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 outline-none focus:border-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
+                                <input
+                                    type="email"
+                                    value={editingStudent.email}
+                                    onChange={(e) => setEditingStudent({ ...editingStudent, email: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 outline-none focus:border-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-300 mb-2">WhatsApp</label>
+                                <input
+                                    type="text"
+                                    value={editingStudent.whatsapp}
+                                    onChange={(e) => setEditingStudent({ ...editingStudent, whatsapp: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 outline-none focus:border-blue-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="p-6 border-t border-slate-800 flex justify-end gap-3">
+                            <button
+                                onClick={() => setEditModalOpen(false)}
+                                className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleEditStudent}
+                                className="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-lg shadow-blue-500/20 flex items-center gap-2"
+                            >
+                                <CheckCircle className="w-4 h-4" />
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Enrollment Modal */}
             {enrollModalOpen && selectedStudent && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
@@ -304,9 +584,9 @@ const StudentsManager = () => {
                                             className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-slate-200 outline-none focus:border-blue-500"
                                         >
                                             <option value="">-- Select a Course --</option>
-                                            {coursesData.filter(c => c.isActive).map(course => (
+                                            {courses.map(course => (
                                                 <option key={course.id} value={course.id}>
-                                                    {course.courseName} ({course.durationDays} Days)
+                                                    {course.course_name} ({course.duration_days} Days)
                                                 </option>
                                             ))}
                                         </select>
@@ -316,15 +596,26 @@ const StudentsManager = () => {
                                         <button
                                             onClick={() => setEnrollModalOpen(false)}
                                             className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white"
+                                            disabled={isSendingEmail}
                                         >
                                             Cancel
                                         </button>
                                         <button
-                                            onClick={handleEnrollAndPay}
-                                            className="px-6 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-500 rounded-lg shadow-lg shadow-green-500/20 flex items-center gap-2"
+                                            onClick={handlePaymentVerificationAndEnroll}
+                                            disabled={isSendingEmail}
+                                            className="px-6 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-500 rounded-lg shadow-lg shadow-green-500/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            <CheckCircle className="w-4 h-4" />
-                                            Confirm Payment & Enroll
+                                            {isSendingEmail ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    Processing...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Send className="w-4 h-4" />
+                                                    Confirm & Send Email
+                                                </>
+                                            )}
                                         </button>
                                     </div>
                                 </>
@@ -339,18 +630,23 @@ const StudentsManager = () => {
                                     </div>
 
                                     <div className="bg-slate-950 border border-slate-700 rounded-xl p-4 space-y-3">
-                                        <h5 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Auto-Generated Credentials</h5>
-                                        <div className="grid grid-cols-[80px_1fr] gap-2 text-sm">
+                                        <h5 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Login Credentials (Email Sent)</h5>
+                                        <div className="grid grid-cols-[100px_1fr] gap-2 text-sm">
                                             <span className="text-slate-500">Email:</span>
                                             <span className="text-slate-200 font-mono select-all">{generatedCredentials.email}</span>
                                             <span className="text-slate-500">Password:</span>
                                             <span className="text-slate-200 font-mono select-all font-bold bg-slate-800 px-2 rounded w-fit">
                                                 {generatedCredentials.password}
                                             </span>
+                                            <span className="text-slate-500">Course:</span>
+                                            <span className="text-emerald-400 font-medium">{generatedCredentials.courseName}</span>
                                         </div>
-                                        <p className="text-[10px] text-slate-500 italic mt-2">
-                                            * Please copy and share these credentials with the student securely. An email would typically be sent here.
-                                        </p>
+                                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mt-3">
+                                            <p className="text-xs text-blue-300 flex items-center gap-2">
+                                                <Mail className="w-3.5 h-3.5" />
+                                                An email with these credentials has been sent to the student's email address.
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <button
@@ -361,6 +657,57 @@ const StudentsManager = () => {
                                     </button>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Global Confirmation Modal */}
+            {confirmModal.open && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md shadow-2xl animate-fade-in divide-y divide-slate-800">
+                        <div className="p-6">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${confirmModal.type === 'payment' ? 'bg-amber-500/20 text-amber-400' :
+                                confirmModal.data?.account_status === 'Active' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'
+                                }`}>
+                                <AlertCircle className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white">
+                                {confirmModal.type === 'payment' ? 'Update Payment Status' : 'Update Account Status'}
+                            </h3>
+                            <p className="text-slate-400 mt-2">
+                                {confirmModal.type === 'payment' ? (
+                                    <>Are you sure you want to change payment status for <span className="text-white font-medium">{confirmModal.data?.name}</span> to <b>{confirmModal.data?.payment_status === 'Paid' ? 'Pending' : 'Paid'}</b>?</>
+                                ) : (
+                                    <>Are you sure you want to <b>{confirmModal.data?.account_status === 'Active' ? 'Deactivate' : 'Activate'}</b> the account for <span className="text-white font-medium">{confirmModal.data?.name}</span>?</>
+                                )}
+                            </p>
+                        </div>
+                        <div className="p-6 flex gap-3">
+                            <button
+                                onClick={() => setConfirmModal({ open: false, type: '', data: null })}
+                                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 transition-all font-medium"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (confirmModal.type === 'payment') {
+                                        console.log(confirmModal.data);
+                                        handleUpdatePaymentStatus(
+                                            confirmModal.data,
+                                            confirmModal.data.payment_status === 'Paid' ? 'Pending' : 'Paid'
+                                        );
+                                    } else {
+                                        toggleAccountStatus(confirmModal.data);
+                                    }
+                                }}
+                                className={`flex-1 px-4 py-2.5 rounded-xl text-white font-medium shadow-lg transition-all ${confirmModal.type === 'payment' ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-500/20' :
+                                    confirmModal.data?.account_status === 'Active' ? 'bg-red-600 hover:bg-red-500 shadow-red-500/20' : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20'
+                                    }`}
+                            >
+                                Confirm Action
+                            </button>
                         </div>
                     </div>
                 </div>

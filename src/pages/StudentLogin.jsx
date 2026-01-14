@@ -1,43 +1,108 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, ArrowRight, BookOpen } from 'lucide-react';
-import studentsData from '../data/students.json';
+import { User, Lock, ArrowRight, BookOpen, Loader2, CheckCircle } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const StudentLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
 
-        // Find student
-        const student = studentsData.find(s => s.email === email);
+        try {
+            // Step 1: Check if LMS user exists with these credentials
+            const { data: lmsUser, error: lmsError } = await supabase
+                .from('lms_users')
+                .select(`
+                    *,
+                    registered_student (
+                        id,
+                        name,
+                        email,
+                        account_status,
+                        payment_status
+                    )
+                `)
+                .eq('email', email)
+                .eq('password', password)
+                .single();
 
-        if (!student) {
-            setError('Account not found. Please register first.');
-            return;
-        }
+            if (lmsError || !lmsUser) {
+                setError('Invalid email or password. Please check your credentials.');
+                setIsLoading(false);
+                return;
+            }
 
-        if (student.accountStatus !== 'Active') {
-            setError('Your account is not active yet. Please complete payment or contact support.');
-            return;
-        }
+            // Step 2: Check if account is active
+            if (!lmsUser.is_active) {
+                setError('Your account has been deactivated. Please contact support.');
+                setIsLoading(false);
+                return;
+            }
 
-        // For this demo, we accept any password since we don't store them in the JSON yet
-        // In a real app, you'd verify the hash
-        if (password.length > 5) {
+            if (lmsUser.registered_student?.account_status !== 'Active') {
+                setError('Your account is not active yet. Please complete payment or contact support.');
+                setIsLoading(false);
+                return;
+            }
+
+            // Step 3: Get student's enrolled courses
+            const { data: enrollments, error: enrollError } = await supabase
+                .from('enrollments')
+                .select(`
+                    *,
+                    courses (
+                        id,
+                        course_name,
+                        instructor,
+                        duration_days
+                    )
+                `)
+                .eq('lms_user_id', lmsUser.id)
+                .eq('status', 'active');
+
+            if (enrollError) {
+                console.error('Error fetching enrollments:', enrollError);
+            }
+
+            // Step 4: Update last login timestamp
+            await supabase
+                .from('lms_users')
+                .update({ last_login: new Date().toISOString() })
+                .eq('id', lmsUser.id);
+
+            // Step 5: Store session data
+            const studentData = {
+                id: lmsUser.id,
+                studentId: lmsUser.student_id,
+                name: lmsUser.registered_student.name,
+                email: lmsUser.email,
+                enrolledCourses: enrollments?.map(e => ({
+                    id: e.courses.id,
+                    name: e.courses.course_name,
+                    instructor: e.courses.instructor,
+                    duration: e.courses.duration_days,
+                    enrollmentId: e.id
+                })) || []
+            };
+
             localStorage.setItem('isStudentAuthenticated', 'true');
-            localStorage.setItem('studentUser', JSON.stringify({
-                name: student.name,
-                email: student.email,
-                id: student.id
-            }));
+            localStorage.setItem('studentUser', JSON.stringify(studentData));
+
+            // Navigate to dashboard
             navigate('/lms/dashboard');
-        } else {
-            setError('Invalid password. (Hint: Use any 6+ char password for demo)');
+
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('An error occurred during login. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -69,7 +134,9 @@ const StudentLogin = () => {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-100 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-slate-600"
+                                required
+                                disabled={isLoading}
+                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-100 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                 placeholder="Enter your email"
                             />
                         </div>
@@ -85,7 +152,9 @@ const StudentLogin = () => {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-100 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-slate-600"
+                                required
+                                disabled={isLoading}
+                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-100 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                 placeholder="Enter your password"
                             />
                         </div>
@@ -99,19 +168,37 @@ const StudentLogin = () => {
 
                     <button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-emerald-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 group"
+                        disabled={isLoading}
+                        className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-emerald-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
-                        Access LMS
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Signing in...
+                            </>
+                        ) : (
+                            <>
+                                Access LMS
+                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            </>
+                        )}
                     </button>
                 </form>
 
-                <div className="mt-8 text-center space-y-2">
+                <div className="mt-8 text-center space-y-3">
                     <p className="text-sm text-slate-400">
-                        Don't have an account? <span className="text-emerald-400 hover:underline cursor-pointer">Register now</span>
+                        Don't have an account? <a href="/" className="text-emerald-400 hover:underline">Register now</a>
                     </p>
-                    <p className="text-xs text-slate-500">
-                        (Demo: Use 'saman@example.com' with any password)
+
+                    <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
+                        <p className="text-xs text-slate-400 mb-2 font-medium">📧 How to get your credentials:</p>
+                        <p className="text-xs text-slate-500">
+                            Your login credentials are sent to your email after payment verification by the admin.
+                        </p>
+                    </div>
+
+                    <p className="text-xs text-slate-600">
+                        Need help? Contact support
                     </p>
                 </div>
             </div>

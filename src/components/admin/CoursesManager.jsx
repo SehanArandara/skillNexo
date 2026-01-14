@@ -11,9 +11,11 @@ import {
     Calendar,
     Tag,
     User,
-    Loader2
+    Loader2,
+    Map
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import RoadmapManager from './RoadmapManager';
 
 const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
     if (!isOpen) return null;
@@ -57,6 +59,10 @@ const CoursesManager = () => {
     // Delete Modal State
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [courseToDelete, setCourseToDelete] = useState(null);
+
+    // Roadmap State
+    const [showRoadmap, setShowRoadmap] = useState(false);
+    const [selectedCourseForRoadmap, setSelectedCourseForRoadmap] = useState(null);
 
     // Fetch courses from Supabase
     const fetchCourses = async () => {
@@ -274,6 +280,16 @@ const CoursesManager = () => {
                             </div>
                             <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
+                                    onClick={() => {
+                                        setSelectedCourseForRoadmap(course);
+                                        setShowRoadmap(true);
+                                    }}
+                                    className="p-2 bg-slate-800 hover:bg-emerald-600/20 text-slate-400 hover:text-emerald-400 rounded-lg transition-colors"
+                                    title="Manage Roadmap"
+                                >
+                                    <Map className="w-4 h-4" />
+                                </button>
+                                <button
                                     onClick={() => handleEdit(course)}
                                     className="p-2 bg-slate-800 hover:bg-blue-600/20 text-slate-400 hover:text-blue-400 rounded-lg transition-colors"
                                 >
@@ -451,6 +467,17 @@ const CoursesManager = () => {
                         </form>
                     </div>
                 </div>
+            )}
+
+            {/* Roadmap Manager Modal */}
+            {showRoadmap && selectedCourseForRoadmap && (
+                <RoadmapManager
+                    course={selectedCourseForRoadmap}
+                    onClose={() => {
+                        setShowRoadmap(false);
+                        setSelectedCourseForRoadmap(null);
+                    }}
+                />
             )}
         </div>
     );
