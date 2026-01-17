@@ -1,78 +1,196 @@
 import { Section } from '../ui/Section'
 import { motion } from 'framer-motion'
-import { Flame, CheckCircle, Award } from 'lucide-react'
+import { Flame, CheckCircle, Award, Lock, PlayCircle, Star, Target } from 'lucide-react'
+import { useLanguage } from '../../context/LanguageContext'
 
 export function LMSSneakPeek() {
+    const { t, language } = useLanguage();
+
+    const sampleRoadmapItems = t('lms_preview.roadmap_items');
+
+    // Status logic for demo: 1-3 completed, 4 active, 5-6 locked
+    const roadmapWithStatus = Array.isArray(sampleRoadmapItems) ? sampleRoadmapItems.map((item, idx) => ({
+        ...item,
+        id: idx + 1,
+        status: idx < 3 ? 'completed' : idx === 3 ? 'active' : 'locked'
+    })) : [];
+
     return (
         <Section id="lms" dark className="overflow-hidden">
-            <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-5xl font-bold mb-4">Built-in <span className="text-accent">Gamification</span></h2>
-                <p className="text-gray-400">Keep your streak alive and earn rewards as you learn.</p>
+            <div className="text-center mb-16 px-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">
+                        {language === 'en' ? (
+                            <>
+                                Experience the <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Future</span> of Learning
+                            </>
+                        ) : (
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+                                {t('lms_preview.title')}
+                            </span>
+                        )}
+                    </h2>
+                    <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+                        {t('lms_preview.subtitle')}
+                    </p>
+                </motion.div>
             </div>
 
-            <div className="relative max-w-5xl mx-auto">
-                {/* Main Interface Screenshot Placeholder */}
+            <div className="relative max-w-6xl mx-auto px-4">
+                {/* Main Interface Decorators */}
+                <div className="absolute -top-20 -left-20 w-64 h-64 bg-primary/20 blur-[100px] rounded-full" />
+                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-accent/20 blur-[100px] rounded-full" />
+
+                {/* Mock UI Container */}
                 <motion.div
                     initial={{ y: 50, opacity: 0 }}
                     whileInView={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.8 }}
-                    className="rounded-xl border border-white/10 bg-[#0f1117] shadow-2xl overflow-hidden aspect-[16/9] relative z-10"
+                    className="rounded-[2.5rem] border border-white/10 bg-[#0a0c10] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden relative z-10"
                 >
                     {/* Mock UI Header */}
-                    <div className="h-12 border-b border-white/10 flex items-center px-4 justify-between bg-white/5">
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-red-500" />
-                            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                            <div className="w-3 h-3 rounded-full bg-green-500" />
+                    <div className="h-16 border-b border-white/5 flex items-center px-8 justify-between bg-white/[0.02] backdrop-blur-md">
+                        <div className="flex items-center gap-3">
+                            <div className="flex gap-1.5">
+                                <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                                <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                                <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                            </div>
+                            <div className="h-4 w-px bg-white/10 mx-2" />
+                            <div className="text-xs font-medium text-gray-500 tracking-widest uppercase">{t('lms_preview.badge')}</div>
                         </div>
-                        <div className="flex items-center gap-4 text-sm font-medium">
-                            <span className="flex items-center gap-1 text-orange-500"><Flame size={16} fill="currentColor" /> 12 Day Streak</span>
-                            <span className="text-primary">Level 4 Engineer</span>
+                        <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-2 bg-orange-500/10 px-3 py-1.5 rounded-full border border-orange-500/20">
+                                <Flame size={14} className="text-orange-500" fill="currentColor" />
+                                <span className="text-xs font-bold text-orange-500">14 {t('lms_preview.streak_suffix')}</span>
+                            </div>
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent p-0.5">
+                                <div className="w-full h-full rounded-full bg-[#0a0c10] flex items-center justify-center text-[10px] font-bold">SA</div>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Mock UI Body */}
-                    <div className="flex h-full">
+                    <div className="flex flex-col md:flex-row min-h-[500px]">
                         {/* Sidebar */}
-                        <div className="w-64 border-r border-white/10 p-4 space-y-2 hidden md:block">
-                            <div className="text-xs font-bold text-gray-500 uppercase mb-4">Modules</div>
-                            {[1, 2, 3, 4, 5].map(i => (
-                                <div key={i} className={`p-2 rounded flex items-center gap-3 text-sm ${i === 2 ? 'bg-primary/10 text-primary border border-primary/20' : 'text-gray-400'}`}>
-                                    {i < 3 ? <CheckCircle size={14} className="text-green-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-gray-600" />}
-                                    Module 0{i}: Deep Dive
+                        <div className="w-full md:w-72 border-r border-white/5 p-6 space-y-6 bg-white/[0.01]">
+                            <div>
+                                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">{t('lms_preview.current_course')}</div>
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                                    <div className="text-sm font-bold mb-1">AI SaaS Engine</div>
+                                    <div className="w-full bg-white/5 h-1.5 rounded-full mt-3 overflow-hidden">
+                                        <div className="bg-primary h-full w-[65%]" />
+                                    </div>
+                                    <div className="text-[10px] text-gray-500 mt-2">65% {t('lms_preview.completed_label')}</div>
                                 </div>
-                            ))}
+                            </div>
+
+                            <nav className="space-y-1">
+                                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">{t('lms_preview.navigation')}</div>
+                                {(t('lms_preview.nav_items') || []).map((item, i) => (
+                                    <div key={item} className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${i === 1 ? 'bg-primary/10 text-primary border border-primary/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
+                                        <div className={`w-1.5 h-1.5 rounded-full ${i === 1 ? 'bg-primary shadow-[0_0_8px_rgba(59,130,246,0.5)]' : 'bg-transparent'}`} />
+                                        {item}
+                                    </div>
+                                ))}
+                            </nav>
                         </div>
 
-                        {/* Content Area */}
-                        <div className="flex-1 p-8 bg-[#0a0c10] flex items-center justify-center">
-                            <div className="text-center">
-                                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-                                    <Award size={32} />
+                        {/* Main Roadmap Area */}
+                        <div className="flex-1 p-8 md:p-12 bg-[#08090d]">
+                            <div className="max-w-xl mx-auto">
+                                <div className="flex items-center justify-between mb-10">
+                                    <h3 className="text-xl font-bold flex items-center gap-2">
+                                        <Target className="text-primary" size={20} />
+                                        {t('lms_preview.roadmap_title')}
+                                    </h3>
+                                    <div className="text-xs text-gray-500 font-medium">{t('lms_preview.updated_label')}</div>
                                 </div>
-                                <h3 className="text-xl font-bold mb-2">Lesson Completed!</h3>
-                                <p className="text-gray-400 text-sm max-w-xs mx-auto">You've mastered the basics of Neural Networks. +50XP earned.</p>
+
+                                <div className="space-y-4 relative">
+                                    {/* Vertical Line */}
+                                    <div className="absolute left-[19px] top-6 bottom-6 w-px bg-gradient-to-b from-primary via-primary/50 to-white/5" />
+
+                                    {roadmapWithStatus.map((item) => (
+                                        <motion.div
+                                            key={item.id}
+                                            initial={{ x: -20, opacity: 0 }}
+                                            whileInView={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: item.id * 0.1 }}
+                                            className={`relative flex items-center gap-6 p-4 rounded-2xl border transition-all duration-300 group
+                                                ${item.status === 'active'
+                                                    ? 'bg-primary/5 border-primary/30 shadow-[0_0_30px_-10px_rgba(59,130,246,0.2)]'
+                                                    : item.status === 'completed'
+                                                        ? 'bg-white/[0.02] border-white/5 opacity-60'
+                                                        : 'bg-transparent border-transparent opacity-40 grayscale'
+                                                }`}
+                                        >
+                                            {/* Status Icon */}
+                                            <div className="relative z-10">
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center border-2 transition-all group-hover:scale-110 
+                                                    ${item.status === 'completed'
+                                                        ? 'bg-green-500 border-green-500 text-white'
+                                                        : item.status === 'active'
+                                                            ? 'bg-[#0a0c10] border-primary text-primary shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                                                            : 'bg-[#0a0c10] border-white/10 text-gray-600'
+                                                    }`}
+                                                >
+                                                    {item.status === 'completed' ? <CheckCircle size={18} /> : item.status === 'active' ? <PlayCircle size={18} /> : <Lock size={16} />}
+                                                </div>
+                                            </div>
+
+                                            {/* Text Content */}
+                                            <div className="flex-1">
+                                                <div className={`text-xs font-bold uppercase tracking-widest mb-0.5 
+                                                    ${item.status === 'active' ? 'text-primary' : 'text-gray-500'}`}
+                                                >
+                                                    {t('syllabus.day_label')} {item.id < 10 ? `0${item.id}` : item.id} • {item.type}
+                                                </div>
+                                                <h4 className={`text-base font-bold transition-all
+                                                    ${item.status === 'completed' ? 'line-through decoration-primary/50 text-gray-400' : 'text-white'}`}
+                                                >
+                                                    {item.title}
+                                                </h4>
+                                            </div>
+
+                                            {/* Action / Badge */}
+                                            {item.status === 'active' && (
+                                                <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-primary animate-pulse">
+                                                    {t('lms_preview.continue_btn')} <Star size={12} fill="currentColor" />
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </motion.div>
 
-                {/* Floating Elements */}
+                {/* Floating Achievement Card */}
                 <motion.div
-                    animate={{ y: [0, -20, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute -top-10 -right-10 md:-right-20 bg-card-bg border border-white/10 p-4 rounded-xl shadow-xl z-20 hidden sm:block"
+                    animate={{ y: [0, -15, 0] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -bottom-10 -left-6 md:-left-12 bg-[#12141c] border border-white/10 p-6 rounded-[2rem] shadow-2xl z-20 hidden lg:block max-w-[240px]"
                 >
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-orange-500/20 rounded-lg text-orange-500">
-                            <Flame size={20} fill="currentColor" />
+                    <div className="flex flex-col items-center text-center">
+                        <div className="w-16 h-16 bg-gradient-to-tr from-yellow-400 via-orange-500 to-red-500 rounded-full flex items-center justify-center text-white mb-4 shadow-[0_10px_20px_rgba(249,115,22,0.3)]">
+                            <Award size={32} />
                         </div>
-                        <div>
-                            <div className="text-xs text-gray-400">Current Streak</div>
-                            <div className="text-lg font-bold">14 Days 🔥</div>
+                        <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">{t('lms_preview.achievement.badge')}</div>
+                        <div className="text-sm font-bold text-white mb-1">{t('lms_preview.achievement.title')}</div>
+                        <div className="text-[10px] text-gray-500">{t('lms_preview.achievement.desc')}</div>
+                        <div className="mt-4 w-full bg-white/5 rounded-full h-1">
+                            <div className="bg-orange-500 h-full w-full rounded-full shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
                         </div>
                     </div>
                 </motion.div>
+
+                {/* Background Shadow */}
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-[80%] h-12 bg-primary/20 blur-[60px] rounded-full pointer-events-none" />
             </div>
         </Section>
     )

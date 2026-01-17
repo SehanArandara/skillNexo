@@ -1,7 +1,7 @@
 import { Section } from '../ui/Section'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import { CheckCircle, Code2, Brain, Database, Shield, Globe, Layout, Server, Cpu, Box, Lock, Terminal, Layers, Play } from 'lucide-react'
+import { CheckCircle, Code2, Brain, Database, Shield, Globe, Layout, Server, Cpu, Box, Lock, Terminal, Layers, Play, NotebookText } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 
 // --- Data ---
@@ -10,60 +10,180 @@ const introTimeline = [
         title: "The Gateway (Free)",
         subtitle: "Day 0: The Free Seminar",
         items: [
-            "The 2025 Tech Landscape: Why Web + AI?",
-            "Decoding SDLC & 3-Tier Architecture.",
-            "Live Demo: Transforming a static site into an AI app in 15 mins."
+            "What is Web Development?",
+            "What is AI?",
+            "Software Engineering Life Cycle (SDLC)",
+            "ML Pipeline (High-level)",
+            "What This Course Covers"
         ],
         icon: <Globe className="text-blue-400" />
     },
     {
-        title: "The Onboarding (Paid Only)",
-        subtitle: "Orientation 01: Web Foundations",
+        title: "Web Foundations",
+        subtitle: "Orientation 01: Introduction to Web Development",
         items: [
-            "Setting up the \"God-Tier\" Dev Environment.",
-            "The Modern Web Stack: Why we chose React & Node."
+            "Frontend vs Backend",
+            "Setting up VS Code, Git & GitHub",
+            "HTML , CSS , JS",
+            "Web Dev roadmap overview"
         ],
         icon: <Layout className="text-secondary" />
     },
     {
-        title: "AI/ML Primer",
-        subtitle: "Orientation 02: Mathematical Intuition",
+        title: "AI/ML Foundations",
+        subtitle: "Orientation 02: Introduction to AI & ML",
         items: [
-            "Mathematical intuition without the \"scary\" math.",
-            "The ML Pipeline: From Data to Deployment."
+            "What is ML , DL , LLM & Gen AI ?",
+            "Supervised, Unsupervised & Reinforcement ML",
+            "ML vs Deep Learning vs LLMs",
         ],
         icon: <Brain className="text-accent" />
     },
     {
-        title: "The AI-Powered Student",
-        subtitle: "Orientation 03: 10x Your Speed",
+        title: "AI-Powered Learning",
+        subtitle: "Orientation 03: How to Learn & Code Using AI",
         items: [
-            "How to use Cursor, ChatGPT, and Copilot effectively."
+            "Using ChatGPT for Debugging & Concepts",
+            "Prompt Engineering for Developers",
+            "AI as a Learning Assistant, not a shortcut",
+            "Best practices for students"
         ],
         icon: <Terminal className="text-green-400" />
     }
 ]
 
 const webTrack = [
-    { day: "1", title: "UI/UX Mastery (Tailwind)", tool: "Tailwind", icon: <Layout />, task: "Build a Landing Page" },
-    { day: "2", title: "React.js: State & Hooks", tool: "React", icon: <Code2 />, task: "Interactive Dashboard" },
-    { day: "3", title: "Backend Arch. (Node/Express)", tool: "Node", icon: <Server />, task: "REST API Setup" },
-    { day: "4", title: "Database (Postgres/Mongo)", tool: "SQL", icon: <Database />, task: "Schema Design" },
-    { day: "5", title: "Auth & Security (JWT)", tool: "JWT", icon: <Lock />, task: "Secure Login System" },
-    { day: "6", title: "API Dev & Docs", tool: "Postman", icon: <Globe />, task: "Swagger Docs" },
-    { day: "7", title: "Deployment (Docker/AWS)", tool: "Docker", icon: <Box />, task: "Containerize App" },
-    { day: "8", title: "Final Project: Frontend", tool: "Vite", icon: <Layout />, task: "SaaS UI Complete" },
+    {
+        day: "1",
+        title: "Introduction to Web Development",
+        tool: "HTML, CSS, JS, Git",
+        icon: <Layout />,
+        theory: ["Introduction to Web Apps", "HTML basics", "CSS basics", "Frontend vs Backend vs DB", "Git & GitHub basics"],
+        practical: ["Build a simple landing page", "Push code to GitHub"]
+    },
+    {
+        day: "2",
+        title: "Frontend with React",
+        tool: "React, Vite",
+        icon: <Code2 />,
+        theory: ["JavaScript fundamentals", "JSON", "React.js fundamentals", "Vite setup", "Project structure", "JSX, Components, Props, State"],
+        practical: ["Build a React UI with Tailwind"]
+    },
+    {
+        day: "3",
+        title: "UI/UX & Responsive Design",
+        tool: "Figma, Tailwind",
+        icon: <Layers />,
+        theory: ["UI vs UX principles", "Color theory", "Typography", "Layout systems", "Responsive design"],
+        practical: ["Improve existing React UI"]
+    },
+    {
+        day: "4",
+        title: "Backend Foundations",
+        tool: "Node, Express",
+        icon: <Server />,
+        theory: ["OOP basics", "Backend concepts", "MERN stack overview", "CRUD operations", "DB types (SQL vs NoSQL)"],
+        practical: ["Simple backend API (CRUD)"]
+    },
+    {
+        day: "5",
+        title: "Authentication & Security",
+        tool: "JWT, bcrypt",
+        icon: <Lock />,
+        theory: ["Full CRUD backend", "Authentication: Login, Register", "JWT basics"],
+        practical: ["Auth system implementation"]
+    },
+    {
+        day: "6",
+        title: "Full-Stack Integration",
+        tool: "Axios, REST",
+        icon: <Globe />,
+        theory: ["Connect frontend & backend", "API integration", "Error handling"],
+        practical: ["Full-stack app connection"]
+    },
+    {
+        day: "7",
+        title: "Deployment & Supabase",
+        tool: "Supabase, Vercel",
+        icon: <Database />,
+        theory: ["Supabase", "GitHub workflow", "Deployment concepts", "vercel"],
+        practical: ["Deploy React + Supabase app"]
+    },
+    {
+        day: "8",
+        title: "Final Web Project",
+        tool: "Vite, GitHub",
+        icon: <Code2 />,
+        theory: ["Final Project: React frontend", "Backend (Supabase / Flask)", "GitHub", "Deployment"],
+        practical: ["Core SaaS features completion"]
+    },
 ]
 
 const aiTrack = [
-    { day: "1", title: "Python for Data Science", tool: "Pandas", icon: <Terminal />, task: "Data Analysis Script" },
-    { day: "2", title: "Exploratory Data Analysis", tool: "Jupyter", icon: <Layers />, task: "Visualize Trends" },
-    { day: "3", title: "Linear & Logistic Regression", tool: "Sklearn", icon: <Cpu />, task: "Predict Pricing" },
-    { day: "4", title: "Decision Trees & Forests", tool: "Models", icon: <Brain />, task: "Classification Model" },
-    { day: "5", title: "Neural Networks & Deep Learning", tool: "PyTorch", icon: <Brain />, task: "Build a Neural Net" },
-    { day: "6", title: "Natural Language Processing", tool: "NLTK", icon: <CheckCircle />, task: "Sentiment Analyzer" },
-    { day: "7", title: "LLMs & Prompt Eng.", tool: "OpenAI", icon: <Terminal />, task: "Custom Chatbot" },
-    { day: "8", title: "Final Project: AI Brain", tool: "API", icon: <Server />, task: "Integrate AI Model" },
+    {
+        day: "1",
+        title: "What is AI & ML?",
+        tool: "Python, Pandas",
+        icon: <Terminal />,
+        theory: ["What is Machine Learning?", "Types of ML", "ML pipeline in detail", "AI vs ML vs DL vs LLM vs Gen AI"],
+        practical: ["Simple dataset exploration", "ML pipeline visualization"]
+    },
+    {
+        day: "2",
+        title: "Machine Learning Algorithms",
+        tool: "Scikit-Learn",
+        icon: <Cpu />,
+        theory: ["ML algorithms overview", "Regression vs Classification", "Model training concept"],
+        practical: ["Train a basic ML model (scikit-learn)"]
+    },
+    {
+        day: "3",
+        title: "Machine Learning Pipeline",
+        tool: "NumPy, Matplotlib",
+        icon: <Layers />,
+        theory: ["Data preprocessing", "Feature engineering", "model Training", "Model evaluation metrics"],
+        practical: ["Improve ML model accuracy"]
+    },
+    {
+        day: "4",
+        title: "Deep Learning basics",
+        tool: "PyTorch",
+        icon: <Brain />,
+        theory: ["Deep Learning basics", "Neural networks", "Forward & backward propagation"],
+        practical: ["Simple neural network demo"]
+    },
+    {
+        day: "5",
+        title: "Computer Vision",
+        tool: "OpenCV",
+        icon: <Layout />,
+        theory: ["Computer Vision", "CNN basics", "Image classification"],
+        practical: ["Image classifier demo"]
+    },
+    {
+        day: "6",
+        title: "LLMs & Gen AI",
+        tool: "Gemini, RAG",
+        icon: <Terminal />,
+        theory: ["What is LLM?", "What is Generative AI?", "Prompt engineering"],
+        practical: ["Gen AI mini project"]
+    },
+    {
+        day: "7",
+        title: "Model Serving & Flask",
+        tool: "Flask",
+        icon: <Server />,
+        theory: ["Flask backend for AI", "Model serving", "API creation"],
+        practical: ["AI model with Flask API"]
+    },
+    {
+        day: "8",
+        title: "Final AI Integration",
+        tool: "Flask, API",
+        icon: <Brain />,
+        theory: ["AI integration into web app", "Career guidance"],
+        practical: ["Project presentation"]
+    },
 ]
 
 // --- Components ---
@@ -131,7 +251,7 @@ function DayAccordion({ data, theme = "blue" }) {
                         {data.icon}
                     </div>
                     <div>
-                        <div className="text-xs text-gray-500 font-mono mb-0.5">{t('syllabus.day_label')} {data.day}</div>
+                        <div className="text-xs text-gray-500 font-mono mb-0.5">Week {data.day}</div>
                         <div className="font-semibold text-sm sm:text-base">{data.title}</div>
                     </div>
                 </div>
@@ -149,13 +269,38 @@ function DayAccordion({ data, theme = "blue" }) {
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden"
                     >
-                        <div className="px-4 pb-4 pl-[4.5rem]">
-                            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide opacity-70">
-                                <CheckCircle size={12} /> {t('syllabus.daily_task')}
-                            </div>
-                            <div className="text-gray-400 text-sm mt-1">
-                                {data.task}
-                            </div>
+                        <div className="px-4 pb-4 pl-[4.5rem] space-y-4">
+                            {data.theory && (
+                                <div>
+                                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-primary mb-2">
+                                        <NotebookText size={12} /> Theory
+                                    </div>
+                                    <ul className="space-y-1">
+                                        {data.theory.map((item, i) => (
+                                            <li key={i} className="text-gray-400 text-sm flex items-start gap-2">
+                                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary/30 shrink-0" />
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {data.practical && (
+                                <div>
+                                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-accent mb-2">
+                                        <Code2 size={12} /> Practical
+                                    </div>
+                                    <ul className="space-y-1">
+                                        {data.practical.map((item, i) => (
+                                            <li key={i} className="text-gray-400 text-sm flex items-start gap-2">
+                                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent/30 shrink-0" />
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </div>
                     </motion.div>
                 )}
@@ -227,7 +372,7 @@ export function Syllabus() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
-                className="max-w-3xl mx-auto px-4" // Changed from max-w-4xl to max-w-3xl for medium size
+                className="max-w-3xl mx-auto px-4"
             >
                 <div className="text-center mb-8">
                     <h3 className="text-2xl font-bold flex items-center justify-center gap-3">
@@ -237,7 +382,6 @@ export function Syllabus() {
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border border-white/20 bg-card-bg group">
                     <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent pointer-events-none z-10" />
                     <div className="relative aspect-video bg-black">
-                        {/* Placeholder for future specific roadmap video */}
                         <iframe
                             width="100%"
                             height="100%"

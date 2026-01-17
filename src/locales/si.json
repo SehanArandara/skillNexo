@@ -145,5 +145,54 @@
     },
     "nav": {
         "register": "ලියාපදිංචි වන්න"
+    },
+    "lms_preview": {
+        "badge": "Student Portal v2.0",
+        "title": "ඉගෙනීමේ අනාගතය අත්විඳින්න",
+        "subtitle": "අපගේ LMS එක හුදෙක් වීඩියෝ ප්ලේයරයක් පමණක් නොවේ. මෙය ඔබගේ ප්‍රගතිය නිරීක්ෂණය කරන, දෛනික ඉලක්ක ලබා දෙන සහ ඔබගේ ඉගෙනීමේ උනන්දුව පවත්වා ගන්නා අන්තර්ක්‍රියාකාරී මාර්ග සිතියමකි (Roadmap).",
+        "streak_suffix": "DAY STREAK",
+        "current_course": "Current Course",
+        "completed_label": "Completed",
+        "navigation": "Navigation",
+        "nav_items": [
+            "Dashboard",
+            "My Roadmap",
+            "Analytics",
+            "Settings"
+        ],
+        "roadmap_title": "Your Learning Path",
+        "updated_label": "Updated 2h ago",
+        "continue_btn": "CONTINUE",
+        "achievement": {
+            "badge": "New Achievement",
+            "title": "Consistency King",
+            "desc": "14 consecutive days of coding milestones reached!"
+        },
+        "roadmap_items": [
+            {
+                "title": "Web App Foundations",
+                "type": "class"
+            },
+            {
+                "title": "Intro to ML Pipelines",
+                "type": "class"
+            },
+            {
+                "title": "React.js & Interactivity",
+                "type": "class"
+            },
+            {
+                "title": "Regression & Classification",
+                "type": "class"
+            },
+            {
+                "title": "UI/UX Layout Systems",
+                "type": "quiz"
+            },
+            {
+                "title": "Neural Networks Deep Dive",
+                "type": "project"
+            }
+        ]
     }
 }
