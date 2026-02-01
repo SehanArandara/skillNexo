@@ -30,7 +30,10 @@ export function Instructor() {
 
     const videos = [
         { type: 'video', src: 'https://www.youtube.com/embed/C2NBibuLQmw?si=hE0CcJJG2jqB2ui-' },
-        { type: 'video', src: 'https://www.youtube.com/embed/SqcY0GlETPk?si=Replcament1' },
+        { type: 'video', src: 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7368319807055687681?collapsed=1' },
+        { type: 'video', src: 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7390063202568617984?collapsed=1' },
+        { type: 'video', src: 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7365950500531261440?collapsed=1' },
+        // { type: 'video', src: 'https://www.youtube.com/embed/SqcY0GlETPk?si=Replcament1' },
     ]
 
     const education = [
