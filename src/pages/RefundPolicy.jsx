@@ -78,8 +78,8 @@ export default function RefundPolicy() {
                                 </li>
                                 <li>
                                     <span className="text-gray-400">WhatsApp:</span>{' '}
-                                    <a href="https://wa.me/94779920805" className="text-primary hover:underline">
-                                        +94 77 992 0805
+                                    <a href="https://wa.me/94710445662" className="text-primary hover:underline">
+                                        +94 71 044 5662
                                     </a>
                                 </li>
                             </ul>

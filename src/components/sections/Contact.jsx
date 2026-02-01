@@ -26,7 +26,7 @@ export function Contact() {
                 <div className="grid md:grid-cols-2 gap-6">
                     {/* WhatsApp */}
                     <motion.a
-                        href="https://wa.me/94779920805"
+                        href="https://wa.me/94710445662"
                         target="_blank"
                         rel="noopener noreferrer"
                         whileHover={{ scale: 1.02 }}
@@ -36,7 +36,7 @@ export function Contact() {
                             <MessageCircle size={32} />
                         </div>
                         <h3 className="text-xl font-bold text-white mb-1">{t('contact.whatsapp')}</h3>
-                        <p className="text-gray-400 font-mono text-lg">+94 77 992 0805</p>
+                        <p className="text-gray-400 font-mono text-lg">+94 71 044 5662</p>
                     </motion.a>
 
                     {/* Email */}

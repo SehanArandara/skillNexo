@@ -3,9 +3,8 @@ import { Section } from '../ui/Section'
 import { Button } from '../ui/Button'
 import { supabase } from '../../lib/supabase'
 import { motion } from 'framer-motion'
-import { CheckCircle, AlertCircle, CreditCard, Landmark } from 'lucide-react'
+import { CheckCircle, AlertCircle, Landmark } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
-import md5 from 'crypto-js/md5'
 
 export function Registration() {
     const { t } = useLanguage()
@@ -15,14 +14,14 @@ export function Registration() {
         whatsapp: '',
         level: ''
     })
-    const [status, setStatus] = useState('idle') // idle, loading, payment_selection, success, error
+    const [status, setStatus] = useState('idle') // idle, loading, bank_transfer, success, error
     const [errorMsg, setErrorMsg] = useState('')
     const [courses, setCourses] = useState([])
     const [selectedCourse, setSelectedCourse] = useState('')
     const [registeredId, setRegisteredId] = useState(null)
 
     // Fetch courses on mount
-    useState(() => {
+    useEffect(() => {
         const fetchCourses = async () => {
             try {
                 const { data, error } = await supabase
@@ -99,66 +98,11 @@ export function Registration() {
             if (error) throw error
 
             setRegisteredId(data.id)
-            setStatus('payment_selection')
+            setStatus('success')
 
         } catch (error) {
             console.error('Error registering student:', error.message)
             setStatus('error')
-        }
-    }
-
-    const handlePayHere = () => {
-        const merchantSecret = 'MjQzNjExODkzNjM3MzY5OTY5MTUxNTgzNjE3NDE1MTgyNjM2OTIzMA=='; // TODO: Replace with your actual Merchant Secret (Securely)
-        const merchantId = '1233677'; // TODO: Replace with your actual Merchant ID
-        const orderId = `Order_${registeredId}_${Date.now()}`;
-        const amount = '1000.00'; // Fixed amount for sandbox testing
-        const currency = 'LKR';
-
-        // Hash Generation: merchant_id + order_id + amount + currency + md5(merchant_secret)
-        const hashedSecret = md5(merchantSecret).toString().toUpperCase();
-        const amountFormatted = parseFloat(amount).toFixed(2);
-        const params = merchantId + orderId + amountFormatted + currency + hashedSecret;
-        const hash = md5(params).toString().toUpperCase();
-
-        const payment = {
-            "sandbox": true,
-            "merchant_id": merchantId,
-            "return_url": window.location.href, // Can be specific success page
-            "cancel_url": window.location.href, // Can be specific cancel page
-            "notify_url": "https://skillnexo.info/api/payhere-notify", // Must be public
-            "order_id": orderId,
-            "items": courses.find(c => c.id == selectedCourse)?.course_name || "Course Enrollment",
-            "amount": amount,
-            "currency": currency,
-            "hash": hash,
-            "first_name": formData.name.split(' ')[0],
-            "last_name": formData.name.split(' ').slice(1).join(' ') || 'Student',
-            "email": formData.email,
-            "phone": formData.whatsapp,
-            "address": "No.1, Galle Road",
-            "city": "Colombo",
-            "country": "Sri Lanka",
-        };
-
-        if (window.payhere) {
-            window.payhere.startPayment(payment);
-
-            window.payhere.onCompleted = function onCompleted(orderId) {
-                console.log("Payment completed. OrderID:" + orderId);
-                setStatus('success');
-            };
-
-            window.payhere.onDismissed = function onDismissed() {
-                console.log("Payment dismissed");
-            };
-
-            window.payhere.onError = function onError(error) {
-                console.log("Error:" + error);
-                setErrorMsg("Payment Error: " + error);
-            };
-        } else {
-            console.error('PayHere SDK not loaded');
-            alert('Payment system is loading. Please try again in a moment.');
         }
     }
 
@@ -170,213 +114,132 @@ export function Registration() {
                     <p className="text-gray-400">{t('registration.subtitle')}</p>
                 </div>
 
-                {status === 'payment_selection' ? (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-card-bg p-8 rounded-2xl border border-white/10 shadow-2xl space-y-6"
-                    >
-                        <h3 className="text-2xl font-bold text-white text-center mb-6">Choose Payment Method</h3>
 
-                        <div className="grid grid-cols-1 gap-4">
-                            <button
-                                onClick={handlePayHere}
-                                className="flex items-center justify-between p-4 bg-dark-bg/50 border border-white/10 rounded-xl hover:border-primary transition-colors group"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-                                        <CreditCard size={24} />
-                                    </div>
-                                    <div className="text-left">
-                                        <h4 className="font-semibold text-white">Pay Online</h4>
-                                        <p className="text-sm text-gray-400">Credit/Debit Card, Genie, EzCash</p>
-                                    </div>
-                                </div>
-                                <div className="text-gray-400 group-hover:text-primary transition-colors">→</div>
-                            </button>
-
-                            <button
-                                onClick={() => setStatus('bank_transfer')}
-                                className="flex items-center justify-between p-4 bg-dark-bg/50 border border-white/10 rounded-xl hover:border-primary transition-colors group"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
-                                        <Landmark size={24} />
-                                    </div>
-                                    <div className="text-left">
-                                        <h4 className="font-semibold text-white">Bank Transfer</h4>
-                                        <p className="text-sm text-gray-400">Direct Deposit to Bank Account</p>
-                                    </div>
-                                </div>
-                                <div className="text-gray-400 group-hover:text-primary transition-colors">→</div>
-                            </button>
+                <motion.form
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    onSubmit={handleSubmit}
+                    className="space-y-6 bg-card-bg p-8 rounded-2xl border border-white/10 shadow-2xl"
+                >
+                    {status === 'success' ? (
+                        <div className="text-center py-12 space-y-4">
+                            <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto">
+                                <CheckCircle size={32} />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white">{t('registration.success_title')}</h3>
+                            <p className="text-gray-400">{t('registration.success_msg')}</p>
+                            <Button type="button" variant="outline" onClick={() => {
+                                setStatus('idle');
+                                setFormData({ name: '', email: '', whatsapp: '', level: '' });
+                                setSelectedCourse('');
+                            }}>{t('registration.register_another')}</Button>
                         </div>
-                    </motion.div>
-                ) : status === 'bank_transfer' ? (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-card-bg p-8 rounded-2xl border border-white/10 shadow-2xl space-y-6"
-                    >
-                        <h3 className="text-2xl font-bold text-white text-center">Bank Details</h3>
-                        <div className="bg-dark-bg/50 p-6 rounded-xl border border-white/10 space-y-4">
-                            <div>
-                                <label className="text-xs text-gray-400 uppercase tracking-wider">Bank Name</label>
-                                <p className="text-white font-medium text-lg">Commercial Bank</p>
+                    ) : (
+                        <>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300">{t('registration.name_label')}</label>
+                                <input
+                                    type="text"
+                                    required
+                                    maxLength={50}
+                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                                    placeholder={t('registration.name_placeholder')}
+                                    value={formData.name}
+                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                />
                             </div>
-                            <div>
-                                <label className="text-xs text-gray-400 uppercase tracking-wider">Account Name</label>
-                                <p className="text-white font-medium text-lg">SkillNexo Academy</p>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300">{t('registration.email_label')}</label>
+                                <input
+                                    type="email"
+                                    required
+                                    maxLength={60}
+                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                                    placeholder="john@example.com"
+                                    value={formData.email}
+                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                />
                             </div>
-                            <div>
-                                <label className="text-xs text-gray-400 uppercase tracking-wider">Account Number</label>
-                                <p className="text-white font-mono text-xl tracking-wide">1000 1234 5678</p>
+
+                            {/* Course Selection */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300">Select Course</label>
+                                <select
+                                    required
+                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+                                    value={selectedCourse}
+                                    onChange={e => setSelectedCourse(e.target.value)}
+                                >
+                                    <option value="">-- Choose a Course --</option>
+                                    {courses.map(course => (
+                                        <option key={course.id} value={course.id}>
+                                            {course.course_name} ({course.category})
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
-                            <div>
-                                <label className="text-xs text-gray-400 uppercase tracking-wider">Branch</label>
-                                <p className="text-white font-medium text-lg">Colombo 07</p>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300">{t('registration.whatsapp_label')}</label>
+                                <input
+                                    type="tel"
+                                    required
+                                    maxLength={10}
+                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                                    placeholder="07XXXXXX"
+                                    value={formData.whatsapp}
+                                    onChange={e => {
+                                        const re = /^[0-9\b]+$/;
+                                        if (e.target.value === '' || re.test(e.target.value)) {
+                                            setFormData({ ...formData, whatsapp: e.target.value })
+                                        }
+                                    }}
+                                />
                             </div>
-                        </div>
-                        <div className="text-center">
-                            <p className="text-sm text-gray-400 mb-4">Please upload your payment slip to confirm enrollment.</p>
-                            <Button onClick={() => setStatus('success')} className="w-full">
-                                I Have Transferred
-                            </Button>
-                        </div>
-                        <button
-                            onClick={() => setStatus('payment_selection')}
-                            className="w-full text-center text-sm text-gray-500 hover:text-white mt-4"
-                        >
-                            Back to Payment Options
-                        </button>
-                    </motion.div>
-                ) : (
-                    <motion.form
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        onSubmit={handleSubmit}
-                        className="space-y-6 bg-card-bg p-8 rounded-2xl border border-white/10 shadow-2xl"
-                    >
-                        {status === 'success' ? (
-                            <div className="text-center py-12 space-y-4">
-                                <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto">
-                                    <CheckCircle size={32} />
-                                </div>
-                                <h3 className="text-2xl font-bold text-white">{t('registration.success_title')}</h3>
-                                <p className="text-gray-400">{t('registration.success_msg')}</p>
-                                <Button type="button" variant="outline" onClick={() => {
-                                    setStatus('idle');
-                                    setFormData({ name: '', email: '', whatsapp: '', level: '' });
-                                    setSelectedCourse('');
-                                }}>{t('registration.register_another')}</Button>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300">{t('registration.level_label')}</label>
+                                <select
+                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+                                    value={formData.level}
+                                    onChange={e => setFormData({ ...formData, level: e.target.value })}
+                                >
+                                    <option value="">-- Select Experience Level --</option>
+                                    <option value="beginner">{t('registration.level_options.beginner')}</option>
+                                    <option value="intermediate">{t('registration.level_options.intermediate')}</option>
+                                    <option value="advanced">{t('registration.level_options.advanced')}</option>
+                                </select>
                             </div>
-                        ) : (
-                            <>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-300">{t('registration.name_label')}</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        maxLength={50}
-                                        className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
-                                        placeholder={t('registration.name_placeholder')}
-                                        value={formData.name}
-                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    />
-                                </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-300">{t('registration.email_label')}</label>
-                                    <input
-                                        type="email"
-                                        required
-                                        maxLength={60}
-                                        className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
-                                        placeholder="john@example.com"
-                                        value={formData.email}
-                                        onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                    />
+                            {/* Validation Error Message */}
+                            {errorMsg && (
+                                <div className="flex items-center gap-2 text-yellow-400 text-sm bg-yellow-400/10 p-3 rounded-lg">
+                                    <AlertCircle size={16} />
+                                    <span>{errorMsg}</span>
                                 </div>
+                            )}
 
-                                {/* Course Selection */}
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-300">Select Course</label>
-                                    <select
-                                        required
-                                        className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
-                                        value={selectedCourse}
-                                        onChange={e => setSelectedCourse(e.target.value)}
-                                    >
-                                        <option value="">-- Choose a Course --</option>
-                                        {courses.map(course => (
-                                            <option key={course.id} value={course.id}>
-                                                {course.course_name} ({course.category})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-300">{t('registration.whatsapp_label')}</label>
-                                    <input
-                                        type="tel"
-                                        required
-                                        maxLength={10}
-                                        className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
-                                        placeholder="07XXXXXX"
-                                        value={formData.whatsapp}
-                                        onChange={e => {
-                                            const re = /^[0-9\b]+$/;
-                                            if (e.target.value === '' || re.test(e.target.value)) {
-                                                setFormData({ ...formData, whatsapp: e.target.value })
-                                            }
-                                        }}
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-300">{t('registration.level_label')}</label>
-                                    <select
-                                        className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
-                                        value={formData.level}
-                                        onChange={e => setFormData({ ...formData, level: e.target.value })}
-                                    >
-                                        <option value="">-- Select Experience Level --</option>
-                                        <option value="beginner">{t('registration.level_options.beginner')}</option>
-                                        <option value="intermediate">{t('registration.level_options.intermediate')}</option>
-                                        <option value="advanced">{t('registration.level_options.advanced')}</option>
-                                    </select>
-                                </div>
-
-                                {/* Validation Error Message */}
-                                {errorMsg && (
-                                    <div className="flex items-center gap-2 text-yellow-400 text-sm bg-yellow-400/10 p-3 rounded-lg">
+                            {/* System Error / Contact Support Message */}
+                            {status === 'error' && (
+                                <div className="flex flex-col gap-2 text-red-400 text-sm bg-red-400/10 p-3 rounded-lg">
+                                    <div className="flex items-center gap-2">
                                         <AlertCircle size={16} />
-                                        <span>{errorMsg}</span>
+                                        <span>{t('registration.error_msg')}</span>
                                     </div>
-                                )}
+                                    <p className="pl-6 text-xs text-red-400/80">
+                                        {t('registration.contact_support')} 0710445662
+                                    </p>
+                                </div>
+                            )}
 
-                                {/* System Error / Contact Support Message */}
-                                {status === 'error' && (
-                                    <div className="flex flex-col gap-2 text-red-400 text-sm bg-red-400/10 p-3 rounded-lg">
-                                        <div className="flex items-center gap-2">
-                                            <AlertCircle size={16} />
-                                            <span>{t('registration.error_msg')}</span>
-                                        </div>
-                                        <p className="pl-6 text-xs text-red-400/80">
-                                            {t('registration.contact_support')} 0779920805
-                                        </p>
-                                    </div>
-                                )}
-
-                                <Button type="submit" disabled={status === 'loading'} className="w-full text-lg font-semibold py-4">
-                                    {status === 'loading' ? t('registration.processing') : t('registration.submit_btn')}
-                                </Button>
-                            </>
-                        )}
-                    </motion.form>
-                )}
+                            <Button type="submit" disabled={status === 'loading'} className="w-full text-lg font-semibold py-4">
+                                {status === 'loading' ? t('registration.processing') : t('registration.submit_btn')}
+                            </Button>
+                        </>
+                    )}
+                </motion.form>
             </div>
         </Section>
     )
