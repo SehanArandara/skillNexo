@@ -1,3 +1,4 @@
+import React, { cloneElement } from 'react'
 import { Section } from '../ui/Section'
 import { motion } from 'framer-motion'
 import { Waypoints, BadgeCheck, Flame, Eye, Briefcase, Play } from 'lucide-react'
@@ -61,8 +62,7 @@ export function WhyUs() {
                                     className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-primary/50 transition-all group flex flex-col"
                                 >
                                     <div className="mb-4 p-3 rounded-xl bg-white/5 w-fit group-hover:scale-110 transition-transform">
-                                        {/* Resize icon slightly for nested grid */}
-                                        {Object.cloneElement(feature.icon, { className: "w-6 h-6" })}
+                                        {cloneElement(feature.icon, { className: "w-6 h-6" })}
                                     </div>
                                     <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
                                     <p className="text-gray-400 text-xs leading-relaxed">{feature.description}</p>
