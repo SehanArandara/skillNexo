@@ -114,6 +114,27 @@ export function Registration() {
                     <p className="text-gray-400">{t('registration.subtitle')}</p>
                 </div>
 
+                {/* How to Register Video */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    className="mb-10 max-w-2xl mx-auto"
+                >
+                    <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-card-bg aspect-video shadow-2xl">
+                        <iframe
+                            width="100%"
+                            height="100%"
+                            src="https://www.youtube.com/embed/dblVFYnYh2g?si=hE0CcJJG2jqB2ui-"
+                            title="How to Register"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="absolute inset-0"
+                        />
+                    </div>
+                </motion.div>
+
 
                 <motion.form
                     initial={{ opacity: 0, y: 20 }}

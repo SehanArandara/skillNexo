@@ -1,6 +1,6 @@
 import { Section } from '../ui/Section'
 import { motion } from 'framer-motion'
-import { Linkedin, Globe, Briefcase, Video, Brain, UserCheck, GraduationCap, Trophy, Rocket } from 'lucide-react'
+import { Linkedin, Globe, Briefcase, Video, Brain, UserCheck, GraduationCap, Trophy, Rocket, Code2, Target } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { useLanguage } from '../../context/LanguageContext'
 import { useState } from 'react'
@@ -69,6 +69,20 @@ export function Instructor() {
         }
     ]
 
+    const technicalSkills = [
+        { label: "AI & Machine Learning", value: 95 },
+        { label: "Full-Stack Development", value: 98 },
+        { label: "Product Architecture", value: 92 },
+        { label: "Cloud & Dev Ops", value: 85 }
+    ]
+
+    const focusAreas = [
+        "LLMs & Generative AI",
+        "React & Next.js Ecosystem",
+        "Scalable SaaS Architecture",
+        "Enterprise System Design"
+    ]
+
     const openModal = (type) => {
         setModalType(type)
         setModalOpen(true)
@@ -89,7 +103,7 @@ export function Instructor() {
                     className="lg:col-span-5 lg:sticky lg:top-20"
                 >
                     <div className="relative z-10 rounded-2xl overflow-hidden border border-white/10 shadow-2xl group">
-                        <div className="aspect-[4/5] lg:aspect-[3/4] bg-gray-900 relative overflow-hidden">
+                        <div className="aspect-[4/5] lg:aspect-square bg-gray-900 relative overflow-hidden">
                             <img
                                 src={instructorPhoto}
                                 alt={t('instructor.name')}
@@ -121,6 +135,27 @@ export function Instructor() {
                             </div>
                         ))}
                     </div>
+
+                    {/* Who am I? Video Section - Now in Sidebar */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="mt-4"
+                    >
+                        <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-card-bg group aspect-video shadow-2xl">
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                src="https://www.youtube.com/embed/VBsp2--PY3k?si=hE0CcJJG2jqB2ui-"
+                                title="Who am I? - Sehan Arandara"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="absolute inset-0"
+                            />
+                        </div>
+                    </motion.div>
                 </motion.div>
 
                 {/* Right Column: Scrollable Content */}
@@ -227,6 +262,53 @@ export function Instructor() {
                         </div>
                     </div>
 
+                    {/* Gap Fillers: Technical Mastery & Focus Areas */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                    >
+                        {/* Technical Mastery (Skill Bars) */}
+                        <div className="p-6 bg-white/5 rounded-2xl border border-white/5 space-y-4">
+                            <h4 className="text-sm font-bold text-gray-300 uppercase tracking-widest flex items-center gap-2">
+                                <Code2 size={16} className="text-secondary" /> Technical Mastery
+                            </h4>
+                            <div className="space-y-4">
+                                {technicalSkills.map((skill, idx) => (
+                                    <div key={idx} className="space-y-1.5">
+                                        <div className="flex justify-between text-xs font-medium">
+                                            <span className="text-gray-400">{skill.label}</span>
+                                            <span className="text-secondary">{skill.value}%</span>
+                                        </div>
+                                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                whileInView={{ width: `${skill.value}%` }}
+                                                transition={{ duration: 1, delay: 0.5 }}
+                                                className="h-full bg-gradient-to-r from-secondary/50 to-secondary rounded-full"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Professional Focus Areas */}
+                        <div className="p-6 bg-white/5 rounded-2xl border border-white/5 space-y-4">
+                            <h4 className="text-sm font-bold text-gray-300 uppercase tracking-widest flex items-center gap-2">
+                                <Target size={16} className="text-accent" /> Expert Domains
+                            </h4>
+                            <div className="grid grid-cols-1 gap-2">
+                                {focusAreas.map((area, idx) => (
+                                    <div key={idx} className="flex items-center gap-3 p-2 rounded-lg bg-white/5 border border-white/5 group hover:border-accent/30 transition-colors">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-accent group-hover:scale-125 transition-transform" />
+                                        <span className="text-xs font-semibold text-gray-400 group-hover:text-white transition-colors">{area}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
             </div>
 

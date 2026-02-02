@@ -192,6 +192,30 @@ export function LMSSneakPeek() {
                 {/* Background Shadow */}
                 <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-[80%] h-12 bg-primary/20 blur-[60px] rounded-full pointer-events-none" />
             </div>
+
+            {/* LMS Video Section */}
+            <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="max-w-3xl mx-auto px-4 mt-20"
+            >
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border border-white/20 bg-card-bg">
+                    <div className="relative aspect-video bg-black">
+                        <iframe
+                            width="100%"
+                            height="100%"
+                            src="https://www.youtube.com/embed/wUXuxfVLJDk?si=hE0CcJJG2jqB2ui-"
+                            title="LMS Preview Video"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="absolute inset-0"
+                        />
+                    </div>
+                </div>
+            </motion.div>
         </Section>
     )
 }
