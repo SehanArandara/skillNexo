@@ -108,63 +108,78 @@ export function Registration() {
 
     return (
         <Section id="register" dark className="relative overflow-hidden">
-            <div className="max-w-xl mx-auto relative z-10">
-                <div className="text-center mb-10">
+            <div className="max-w-7xl mx-auto px-4 relative z-10">
+                <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-5xl font-bold mb-4">{t('registration.title')}</h2>
-                    <p className="text-gray-400">{t('registration.subtitle')}</p>
+                    <p className="text-gray-400 max-w-2xl mx-auto">{t('registration.subtitle')}</p>
                 </div>
 
-                {/* How to Register Video */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    className="mb-10 max-w-2xl mx-auto"
-                >
-                    <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-card-bg aspect-video shadow-2xl">
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            src="https://www.youtube.com/embed/dblVFYnYh2g?si=hE0CcJJG2jqB2ui-"
-                            title="How to Register"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="absolute inset-0"
-                        />
-                    </div>
-                </motion.div>
-
-
-                <motion.form
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    onSubmit={handleSubmit}
-                    className="space-y-6 bg-card-bg p-8 rounded-2xl border border-white/10 shadow-2xl"
-                >
-                    {status === 'success' ? (
-                        <div className="text-center py-12 space-y-4">
-                            <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto">
-                                <CheckCircle size={32} />
-                            </div>
-                            <h3 className="text-2xl font-bold text-white">{t('registration.success_title')}</h3>
-                            <p className="text-gray-400">{t('registration.success_msg')}</p>
-                            <Button type="button" variant="outline" onClick={() => {
+                {status === 'success' ? (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="max-w-xl mx-auto bg-card-bg p-12 rounded-3xl border border-white/10 shadow-2xl text-center space-y-6"
+                    >
+                        <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <CheckCircle size={40} />
+                        </div>
+                        <h3 className="text-3xl font-bold text-white">{t('registration.success_title')}</h3>
+                        <p className="text-gray-400 text-lg">{t('registration.success_msg')}</p>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="px-8 py-3 rounded-xl"
+                            onClick={() => {
                                 setStatus('idle');
                                 setFormData({ name: '', email: '', whatsapp: '', level: '' });
                                 setSelectedCourse('');
-                            }}>{t('registration.register_another')}</Button>
-                        </div>
-                    ) : (
-                        <>
+                            }}
+                        >
+                            {t('registration.register_another')}
+                        </Button>
+                    </motion.div>
+                ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                        {/* Left: instruction video */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="space-y-6"
+                        >
+                            <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-card-bg aspect-video shadow-2xl">
+                                <iframe
+                                    width="100%"
+                                    height="100%"
+                                    src="https://www.youtube.com/embed/dblVFYnYh2g?si=hE0CcJJG2jqB2ui-"
+                                    title="How to Register"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    className="absolute inset-0"
+                                />
+                            </div>
+                            <div className="p-6 bg-white/5 rounded-2xl border border-white/10 border-l-primary border-l-4">
+                                <h4 className="text-white font-bold mb-2">Registration Guide</h4>
+                                <p className="text-sm text-gray-400 leading-relaxed">Please watch this tutorial carefully to ensure you provide the correct details and successfully secure your enrollment in the LMS.</p>
+                            </div>
+                        </motion.div>
+
+                        {/* Right: form */}
+                        <motion.form
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            onSubmit={handleSubmit}
+                            className="space-y-6 bg-card-bg p-8 md:p-10 rounded-3xl border border-white/10 shadow-2xl"
+                        >
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300">{t('registration.name_label')}</label>
                                 <input
                                     type="text"
                                     required
                                     maxLength={50}
-                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                                     placeholder={t('registration.name_placeholder')}
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -177,7 +192,7 @@ export function Registration() {
                                     type="email"
                                     required
                                     maxLength={60}
-                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                                     placeholder="john@example.com"
                                     value={formData.email}
                                     onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -189,7 +204,7 @@ export function Registration() {
                                 <label className="text-sm font-medium text-gray-300">Select Course</label>
                                 <select
                                     required
-                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
                                     value={selectedCourse}
                                     onChange={e => setSelectedCourse(e.target.value)}
                                 >
@@ -202,39 +217,41 @@ export function Registration() {
                                 </select>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">{t('registration.whatsapp_label')}</label>
-                                <input
-                                    type="tel"
-                                    required
-                                    maxLength={10}
-                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
-                                    placeholder="07XXXXXX"
-                                    value={formData.whatsapp}
-                                    onChange={e => {
-                                        const re = /^[0-9\b]+$/;
-                                        if (e.target.value === '' || re.test(e.target.value)) {
-                                            setFormData({ ...formData, whatsapp: e.target.value })
-                                        }
-                                    }}
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300">{t('registration.whatsapp_label')}</label>
+                                    <input
+                                        type="tel"
+                                        required
+                                        maxLength={10}
+                                        className="w-full bg-dark-bg/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                                        placeholder="07XXXXXX"
+                                        value={formData.whatsapp}
+                                        onChange={e => {
+                                            const re = /^[0-9\b]+$/;
+                                            if (e.target.value === '' || re.test(e.target.value)) {
+                                                setFormData({ ...formData, whatsapp: e.target.value })
+                                            }
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300">{t('registration.level_label')}</label>
+                                    <select
+                                        className="w-full bg-dark-bg/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+                                        value={formData.level}
+                                        onChange={e => setFormData({ ...formData, level: e.target.value })}
+                                    >
+                                        <option value="">-- Select Level --</option>
+                                        <option value="beginner">{t('registration.level_options.beginner')}</option>
+                                        <option value="intermediate">{t('registration.level_options.intermediate')}</option>
+                                        <option value="advanced">{t('registration.level_options.advanced')}</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">{t('registration.level_label')}</label>
-                                <select
-                                    className="w-full bg-dark-bg/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
-                                    value={formData.level}
-                                    onChange={e => setFormData({ ...formData, level: e.target.value })}
-                                >
-                                    <option value="">-- Select Experience Level --</option>
-                                    <option value="beginner">{t('registration.level_options.beginner')}</option>
-                                    <option value="intermediate">{t('registration.level_options.intermediate')}</option>
-                                    <option value="advanced">{t('registration.level_options.advanced')}</option>
-                                </select>
-                            </div>
-
-                            {/* Validation Error Message */}
+                            {/* Error Message */}
                             {errorMsg && (
                                 <div className="flex items-center gap-2 text-yellow-400 text-sm bg-yellow-400/10 p-3 rounded-lg">
                                     <AlertCircle size={16} />
@@ -242,7 +259,6 @@ export function Registration() {
                                 </div>
                             )}
 
-                            {/* System Error / Contact Support Message */}
                             {status === 'error' && (
                                 <div className="flex flex-col gap-2 text-red-400 text-sm bg-red-400/10 p-3 rounded-lg">
                                     <div className="flex items-center gap-2">
@@ -255,12 +271,12 @@ export function Registration() {
                                 </div>
                             )}
 
-                            <Button type="submit" disabled={status === 'loading'} className="w-full text-lg font-semibold py-4">
+                            <Button type="submit" disabled={status === 'loading'} className="w-full text-lg font-bold py-4 rounded-xl">
                                 {status === 'loading' ? t('registration.processing') : t('registration.submit_btn')}
                             </Button>
-                        </>
-                    )}
-                </motion.form>
+                        </motion.form>
+                    </div>
+                )}
             </div>
         </Section>
     )

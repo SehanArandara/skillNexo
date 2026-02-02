@@ -301,89 +301,119 @@ export function Syllabus() {
     const { t } = useLanguage()
 
     return (
-        <Section id="syllabus" dark className="relative">
-            <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-5xl font-bold mb-4">{t('syllabus.section_title')}</h2>
-                <p className="text-gray-400">{t('syllabus.section_subtitle')}</p>
-            </div>
-
-            {/* --- Part 1: Timeline (Gateway & Onboarding) --- */}
-            <div className="max-w-4xl mx-auto mb-20">
-                {introTimeline.map((item, i) => (
-                    <TimelineItem key={i} data={item} index={i} />
-                ))}
-            </div>
-
-            {/* --- Part 2: Split Track --- */}
-            <div className="mb-24">
-                <div className="text-center mb-10">
-                    <h3 className="text-2xl font-bold">{t('syllabus.intensive_title')}</h3>
-                    <p className="text-gray-500 text-sm mt-2">{t('syllabus.intensive_subtitle')}</p>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-0 max-w-6xl mx-auto border border-white/10 rounded-3xl overflow-hidden bg-card-bg/50 backdrop-blur-sm">
-
-                    {/* Left: Web Development */}
-                    <div className="relative border-b lg:border-b-0 lg:border-r border-white/10">
-                        <div className="p-6 bg-primary/10 border-b border-primary/20 sticky top-0 z-10 backdrop-blur-md">
-                            <h4 className="text-xl font-bold text-primary flex items-center gap-2">
-                                <Globe className="w-5 h-5" /> {t('syllabus.web_engine')}
-                            </h4>
+        <Section id="syllabus" dark className="relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start mb-24">
+                    {/* Left: Intro & Timeline */}
+                    <div className="space-y-12">
+                        <div className="text-left">
+                            <h2 className="text-3xl md:text-5xl font-extrabold mb-6 tracking-tight">{t('syllabus.section_title')}</h2>
+                            <p className="text-gray-400 text-lg leading-relaxed border-l-4 border-primary/50 pl-6 italic">
+                                {t('syllabus.section_subtitle')}
+                            </p>
                         </div>
-                        <div className="bg-dark-bg/50">
-                            {webTrack.map((day, i) => (
-                                <DayAccordion key={i} data={day} theme="blue" />
+
+                        <div className="space-y-6">
+                            {introTimeline.map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: i * 0.1 }}
+                                    className="flex gap-5 group"
+                                >
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-primary/50 transition-colors">
+                                        {item.icon}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h4 className="text-primary text-xs font-bold uppercase tracking-widest">{item.title}</h4>
+                                        <h3 className="text-xl font-bold text-white group-hover:text-primary/80 transition-colors">{item.subtitle}</h3>
+                                        <p className="text-gray-500 text-sm leading-relaxed">{item.items.join(" • ")}</p>
+                                    </div>
+                                </motion.div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Right: AI Brain */}
-                    <div className="relative">
-                        <div className="p-6 bg-secondary/10 border-b border-secondary/20 sticky top-0 z-10 backdrop-blur-md">
-                            <h4 className="text-xl font-bold text-secondary flex items-center gap-2">
-                                <Brain className="w-5 h-5" /> {t('syllabus.ai_brain')}
-                            </h4>
-                        </div>
-                        <div className="bg-dark-bg/50">
-                            {aiTrack.map((day, i) => (
-                                <DayAccordion key={i} data={day} theme="purple" />
-                            ))}
-                        </div>
+                    {/* Right: Path Video */}
+                    <div className="lg:sticky lg:top-24">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            className="relative"
+                        >
+                            <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl shadow-primary/30 border-8 border-white/5 bg-card-bg group">
+                                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-transparent pointer-events-none z-10" />
+                                <div className="relative aspect-[9/16] lg:aspect-video bg-black">
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        src="https://www.youtube.com/embed/OPqqEzMApzw?si=hE0CcJJG2jqB2ui-"
+                                        title="Roadmap Video"
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        className="absolute inset-0 z-0"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Accent Badge */}
+                            <div className="absolute -bottom-6 -right-6 md:right-10 bg-primary p-6 rounded-3xl shadow-2xl z-20 hidden md:flex items-center gap-4 border-4 border-dark-bg">
+                                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                                    <Play fill="white" className="text-white ml-1" />
+                                </div>
+                                <div>
+                                    <p className="text-white text-[10px] font-bold uppercase tracking-tighter opacity-80">Video Guide</p>
+                                    <p className="text-white font-black text-lg">Watch Roadmap</p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                </div>
+
+                {/* --- Intensive Track Full Width --- */}
+                <div className="mb-24">
+                    <div className="text-center mb-12">
+                        <span className="text-secondary font-mono text-sm uppercase tracking-[0.3em]">{t('syllabus.intensive_subtitle')}</span>
+                        <h3 className="text-3xl md:text-5xl font-black mt-2">{t('syllabus.intensive_title')}</h3>
                     </div>
 
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-0 border border-white/10 rounded-[3rem] overflow-hidden bg-card-bg shadow-3xl">
+                        {/* Left: Web Development */}
+                        <div className="relative border-b lg:border-b-0 lg:border-r border-white/10">
+                            <div className="p-8 bg-primary/10 border-b border-primary/20 flex items-center justify-between">
+                                <h4 className="text-2xl font-black text-primary flex items-center gap-3">
+                                    <Globe className="w-7 h-7" /> {t('syllabus.web_engine')}
+                                </h4>
+                                <span className="bg-primary/20 text-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase">8 Weeks</span>
+                            </div>
+                            <div className="bg-dark-bg/30">
+                                {webTrack.map((day, i) => (
+                                    <DayAccordion key={i} data={day} theme="blue" />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Right: AI Brain */}
+                        <div className="relative">
+                            <div className="p-8 bg-secondary/10 border-b border-secondary/20 flex items-center justify-between">
+                                <h4 className="text-2xl font-black text-secondary flex items-center gap-3">
+                                    <Brain className="w-7 h-7" /> {t('syllabus.ai_brain')}
+                                </h4>
+                                <span className="bg-secondary/20 text-secondary text-[10px] font-bold px-3 py-1 rounded-full uppercase">8 Weeks</span>
+                            </div>
+                            <div className="bg-dark-bg/30">
+                                {aiTrack.map((day, i) => (
+                                    <DayAccordion key={i} data={day} theme="purple" />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            {/* --- Video Explained Section - Moved to Bottom & Medium Size --- */}
-            <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="max-w-3xl mx-auto px-4"
-            >
-                <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold flex items-center justify-center gap-3">
-                        <Play className="fill-primary text-primary" /> {t('syllabus.video_title')}
-                    </h3>
-                </div>
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border border-white/20 bg-card-bg group">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent pointer-events-none z-10" />
-                    <div className="relative aspect-video bg-black">
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            src="https://www.youtube.com/embed/OPqqEzMApzw?si=hE0CcJJG2jqB2ui-"
-                            title="Roadmap Video"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="absolute inset-0 z-0"
-                        />
-                    </div>
-                </div>
-            </motion.div>
-
         </Section>
     )
 }

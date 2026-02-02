@@ -36,69 +36,83 @@ export function WhyUs() {
     ]
 
     return (
-        <Section id="why-us" className="text-center relative">
-            <div className="mb-16">
-                <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                    {t('why_us.title_prefix')} <span className="text-primary">{t('why_us.title_highlight')}</span> {t('why_us.title_suffix')}
-                </h2>
-                <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-                    {t('why_us.subtitle')}
-                </p>
-            </div>
-
-            {/* Features Grid - Clean & Minimal - Flexbox for perfect centering */}
-            <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto mb-20">
-                {features.map((feature, index) => (
-                    <motion.div
-                        key={index}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
-                        className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-primary/50 transition-all group text-left hover:shadow-lg hover:shadow-primary/5 flex flex-col"
-                    >
-                        <div className="mb-6 p-4 rounded-xl bg-white/5 w-fit group-hover:scale-110 transition-transform ring-1 ring-white/10">
-                            {feature.icon}
+        <Section id="why-us" className="relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    {/* Left: Content & Features */}
+                    <div className="space-y-12">
+                        <div className="text-left">
+                            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+                                {t('why_us.title_prefix')} <span className="text-primary">{t('why_us.title_highlight')}</span> {t('why_us.title_suffix')}
+                            </h2>
+                            <p className="text-gray-400 text-lg leading-relaxed">
+                                {t('why_us.subtitle')}
+                            </p>
                         </div>
-                        <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                        <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {features.map((feature, index) => (
+                                <motion.div
+                                    key={index}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: index * 0.1 }}
+                                    className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-primary/50 transition-all group flex flex-col"
+                                >
+                                    <div className="mb-4 p-3 rounded-xl bg-white/5 w-fit group-hover:scale-110 transition-transform">
+                                        {/* Resize icon slightly for nested grid */}
+                                        {Object.cloneElement(feature.icon, { className: "w-6 h-6" })}
+                                    </div>
+                                    <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
+                                    <p className="text-gray-400 text-xs leading-relaxed">{feature.description}</p>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Right: Video Section */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 50 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                        className="relative"
+                    >
+                        <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-primary/20 border border-white/10 bg-card-bg group">
+                            {/* Browser/Window Header */}
+                            <div className="h-10 bg-white/5 border-b border-white/5 flex items-center px-4 gap-2">
+                                <div className="flex gap-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/30" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-green-500/30" />
+                                </div>
+                                <div className="ml-4 h-4 rounded-full bg-white/5 w-1/2" />
+                            </div>
+
+                            <div className="relative aspect-[9/16] lg:aspect-video bg-black">
+                                <iframe
+                                    width="100%"
+                                    height="100%"
+                                    src="https://www.youtube.com/embed/covEJ0NkmDM?si=hE0CcJJG2jqB2ui-"
+                                    title="Why Choose Us"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    referrerPolicy="strict-origin-when-cross-origin"
+                                    allowFullScreen
+                                    className="absolute inset-0"
+                                ></iframe>
+                                {/* Overlay Gradient for Premium Look */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                            </div>
+                        </div>
+
+                        {/* Decorative Elements */}
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 blur-3xl rounded-full -z-10" />
+                        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-secondary/20 blur-3xl rounded-full -z-10" />
                     </motion.div>
-                ))}
-            </div>
-
-            {/* Video Section - Simpler & Cleaner Design - Moved to Bottom & Medium Size */}
-            <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="max-w-3xl mx-auto" // Changed from max-w-5xl to max-w-3xl for medium size
-            >
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-primary/10 border border-white/10 bg-card-bg">
-                    {/* Browser/Window Header to give it a techy feel */}
-                    <div className="h-12 bg-white/5 border-b border-white/5 flex items-center px-4 gap-2">
-                        <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                        <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                        <div className="w-3 h-3 rounded-full bg-green-500/50" />
-                        <div className="ml-4 h-6 rounded-full bg-white/5 w-1/3" />
-                    </div>
-
-                    <div className="relative aspect-video bg-black">
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            src="https://www.youtube.com/embed/covEJ0NkmDM?si=hE0CcJJG2jqB2ui-"
-                            title="YouTube video player"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerPolicy="strict-origin-when-cross-origin"
-                            allowFullScreen
-                            className="absolute inset-0"
-                        ></iframe>
-                    </div>
                 </div>
-            </motion.div>
-
+            </div>
         </Section>
     )
 }
