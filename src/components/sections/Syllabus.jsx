@@ -7,18 +7,6 @@ import { useLanguage } from '../../context/LanguageContext'
 // --- Data ---
 const introTimeline = [
     {
-        title: "The Gateway (Free)",
-        subtitle: "Day 0: The Free Seminar",
-        items: [
-            "What is Web Development?",
-            "What is AI?",
-            "Software Engineering Life Cycle (SDLC)",
-            "ML Pipeline (High-level)",
-            "What This Course Covers"
-        ],
-        icon: <Globe className="text-blue-400" />
-    },
-    {
         title: "Web Foundations",
         subtitle: "Orientation 01: Introduction to Web Development",
         items: [

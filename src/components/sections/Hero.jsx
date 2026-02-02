@@ -48,22 +48,24 @@ export function Hero() {
                     </div>
                 </motion.div>
 
-                {/* Video Placeholder */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     className="relative max-w-xl mx-auto lg:mx-0 w-full"
                 >
-                    <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border border-white/10 bg-card-bg group cursor-pointer group">
-                        {/* Placeholder Content */}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 group-hover:bg-black/40 transition-colors">
-                            <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 group-hover:scale-110 transition-transform">
-                                <Play size={40} className="text-white fill-white ml-2" />
-                            </div>
-                        </div>
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent pointer-events-none" />
+                    <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border border-white/10 bg-black group">
+                        <iframe
+                            width="100%"
+                            height="100%"
+                            src="https://www.youtube.com/embed/9NMjgumglbI?si=YQUgR9kaD3ULEpS1"
+                            title="Promotional Video"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                            className="absolute inset-0"
+                        ></iframe>
                     </div>
 
                     {/* Decorative Elements */}

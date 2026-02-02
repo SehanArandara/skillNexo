@@ -111,18 +111,6 @@
         "title_prefix": "Simple",
         "title_highlight": "Pricing",
         "subtitle": "Invest in your career. The ROI is infinite.",
-        "free": {
-            "name": "Free Seminar",
-            "price": "LKR 0.00",
-            "description": "Introduction to the world of AI Engineering",
-            "features": [
-                "Access to Free Seminar",
-                "Basic Web develpment Concepts",
-                "Basic AI Concepts",
-                "Live Q&A Session",
-                "About the Course"
-            ]
-        },
         "full": {
             "name": "Full Course",
             "price": "LKR 8,000",
