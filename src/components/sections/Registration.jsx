@@ -160,8 +160,8 @@ export function Registration() {
                                 />
                             </div>
                             <div className="p-6 bg-white/5 rounded-2xl border border-white/10 border-l-primary border-l-4">
-                                <h4 className="text-white font-bold mb-2">Registration Guide</h4>
-                                <p className="text-sm text-gray-400 leading-relaxed">Please watch this tutorial carefully to ensure you provide the correct details and successfully secure your enrollment in the LMS.</p>
+                                <h4 className="text-white font-bold mb-2">{t('registration.guide_title')}</h4>
+                                <p className="text-sm text-gray-400 leading-relaxed">{t('registration.guide_text')}</p>
                             </div>
                         </motion.div>
 

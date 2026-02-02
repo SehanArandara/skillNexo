@@ -39,14 +39,14 @@ export function Instructor() {
     const education = [
         {
             school: "SLIIT",
-            degree: "Master of Science in IT, Specializing in Enterprise Applications Development",
-            date: "JAN 2026",
+            degree: t('instructor.education_items.msc.degree'),
+            date: t('instructor.education_items.msc.date'),
             logo: SLIITLogo
         },
         {
             school: "SLIIT",
-            degree: "BSc(Hons) in Information Technology, Specialized in Software Engineering",
-            date: "2021 - SEP 2025",
+            degree: t('instructor.education_items.bsc.degree'),
+            date: t('instructor.education_items.bsc.date'),
             logo: SLIITLogo
         }
     ]
@@ -54,34 +54,29 @@ export function Instructor() {
     const experience = [
         {
             icon: <Rocket className="text-blue-400" size={18} />,
-            title: "Industrial Expertise",
-            text: "2+ Years of Software Engineering experience."
+            title: t('instructor.experience_items.expertise.title'),
+            text: t('instructor.experience_items.expertise.text')
         },
         {
             icon: <Briefcase className="text-purple-400" size={18} />,
-            title: "Product Architect",
-            text: "Deployed 7+ industry-scale products."
+            title: t('instructor.experience_items.architect.title'),
+            text: t('instructor.experience_items.architect.text')
         },
         {
             icon: <Trophy className="text-yellow-400" size={18} />,
-            title: "Awarded Innovation",
-            text: "Winner of multiple technical awards."
+            title: t('instructor.experience_items.innovation.title'),
+            text: t('instructor.experience_items.innovation.text')
         }
     ]
 
     const technicalSkills = [
-        { label: "AI & Machine Learning", value: 95 },
-        { label: "Full-Stack Development", value: 98 },
-        { label: "Product Architecture", value: 92 },
-        { label: "Cloud & Dev Ops", value: 85 }
+        { label: t('instructor.skills.ai'), value: 95 },
+        { label: t('instructor.skills.fullstack'), value: 98 },
+        { label: t('instructor.skills.architecture'), value: 92 },
+        { label: t('instructor.skills.devops'), value: 85 }
     ]
 
-    const focusAreas = [
-        "LLMs & Generative AI",
-        "React & Next.js Ecosystem",
-        "Scalable SaaS Architecture",
-        "Enterprise System Design"
-    ]
+    const focusAreas = t('instructor.domains') || []
 
     const openModal = (type) => {
         setModalType(type)
@@ -182,7 +177,7 @@ export function Instructor() {
                     {/* Education - Two Column Grid on Tablet/Desktop for density */}
                     <div className="space-y-4">
                         <h4 className="flex items-center gap-2 text-xl font-bold text-white">
-                            <GraduationCap className="text-secondary" size={24} /> Education
+                            <GraduationCap className="text-secondary" size={24} /> {t('instructor.education_title')}
                         </h4>
                         <div className="grid grid-cols-1 gap-3">
                             {education.map((edu, idx) => (
@@ -213,7 +208,7 @@ export function Instructor() {
                         {/* Highlights */}
                         <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
                             <h4 className="flex items-center gap-2 text-sm font-bold text-gray-300 uppercase tracking-widest mb-2">
-                                <Briefcase size={16} className="text-primary" /> Highlights
+                                <Briefcase size={16} className="text-primary" /> {t('instructor.highlights_title')}
                             </h4>
                             <div className="space-y-4">
                                 {experience.map((item, idx) => (
@@ -272,7 +267,7 @@ export function Instructor() {
                         {/* Technical Mastery (Skill Bars) */}
                         <div className="p-6 bg-white/5 rounded-2xl border border-white/5 space-y-4">
                             <h4 className="text-sm font-bold text-gray-300 uppercase tracking-widest flex items-center gap-2">
-                                <Code2 size={16} className="text-secondary" /> Technical Mastery
+                                <Code2 size={16} className="text-secondary" /> {t('instructor.technical_mastery')}
                             </h4>
                             <div className="space-y-4">
                                 {technicalSkills.map((skill, idx) => (
@@ -297,7 +292,7 @@ export function Instructor() {
                         {/* Professional Focus Areas */}
                         <div className="p-6 bg-white/5 rounded-2xl border border-white/5 space-y-4">
                             <h4 className="text-sm font-bold text-gray-300 uppercase tracking-widest flex items-center gap-2">
-                                <Target size={16} className="text-accent" /> Expert Domains
+                                <Target size={16} className="text-accent" /> {t('instructor.expert_domains')}
                             </h4>
                             <div className="grid grid-cols-1 gap-2">
                                 {focusAreas.map((area, idx) => (

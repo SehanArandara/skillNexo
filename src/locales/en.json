@@ -21,6 +21,8 @@
     "registration": {
         "title": "Secure Your Spot",
         "subtitle": "Join the waitlist for the next cohort. Limited seats available.",
+        "guide_title": "Registration Guide",
+        "guide_text": "Please watch this tutorial carefully to ensure you provide the correct details and successfully secure your enrollment in the LMS.",
         "success_title": "Your registration Done !!",
         "success_msg": "We will contact You via Whatsapp",
         "register_another": "Register Another",
@@ -105,7 +107,47 @@
         "testimonials_btn": "Student Testimonials",
         "videos_btn": "Class Recordings",
         "testimonials_title": "What Our Students Say",
-        "videos_title": "Watch Class Demos"
+        "videos_title": "Watch Class Demos",
+        "education_title": "Education",
+        "highlights_title": "Highlights",
+        "experience_items": {
+            "expertise": {
+                "title": "Industrial Expertise",
+                "text": "2+ Years of Software Engineering experience."
+            },
+            "architect": {
+                "title": "Product Architect",
+                "text": "Deployed 7+ industry-scale products."
+            },
+            "innovation": {
+                "title": "Awarded Innovation",
+                "text": "Winner of multiple technical awards."
+            }
+        },
+        "education_items": {
+            "msc": {
+                "degree": "Master of Science in IT, Specializing in Enterprise Applications Development",
+                "date": "JAN 2026"
+            },
+            "bsc": {
+                "degree": "BSc(Hons) in Information Technology, Specialized in Software Engineering",
+                "date": "2021 - SEP 2025"
+            }
+        },
+        "technical_mastery": "Technical Mastery",
+        "expert_domains": "Expert Domains",
+        "skills": {
+            "ai": "AI & Machine Learning",
+            "fullstack": "Full-Stack Development",
+            "architecture": "Product Architecture",
+            "devops": "Cloud & Dev Ops"
+        },
+        "domains": [
+            "LLMs & Generative AI",
+            "React & Next.js Ecosystem",
+            "Scalable SaaS Architecture",
+            "Enterprise System Design"
+        ]
     },
     "pricing": {
         "title_prefix": "Simple",
