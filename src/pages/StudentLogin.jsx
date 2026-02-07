@@ -10,6 +10,14 @@ const StudentLogin = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
+    // Check if already authenticated
+    React.useEffect(() => {
+        const isAuthenticated = localStorage.getItem('isStudentAuthenticated');
+        if (isAuthenticated === 'true') {
+            navigate('/lms/dashboard');
+        }
+    }, [navigate]);
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
@@ -190,12 +198,7 @@ const StudentLogin = () => {
                         Don't have an account? <a href="/" className="text-emerald-400 hover:underline">Register now</a>
                     </p>
 
-                    <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
-                        <p className="text-xs text-slate-400 mb-2 font-medium">📧 How to get your credentials:</p>
-                        <p className="text-xs text-slate-500">
-                            Your login credentials are sent to your email after payment verification by the admin.
-                        </p>
-                    </div>
+
 
                     <p className="text-xs text-slate-600">
                         Need help? Contact support

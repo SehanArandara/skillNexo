@@ -16,9 +16,13 @@ import {
     Trophy,
     Target,
     Link as LinkIcon,
-    X
+    X,
+    TrendingUp,
+    AlertCircle
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import confetti from 'canvas-confetti';
+import { motion } from 'framer-motion';
 
 const CourseRoadmap = () => {
     const { courseId } = useParams();
@@ -54,6 +58,20 @@ const CourseRoadmap = () => {
                 .single();
             if (courseError) throw courseError;
             setCourse(courseData);
+
+            // 1.5 SECURITY CHECK: Auto-logout if account is disabled
+            const { data: userData, error: userError } = await supabase
+                .from('lms_users')
+                .select('is_active')
+                .eq('id', studentUser.id)
+                .single();
+
+            if (userError || (userData && !userData.is_active)) {
+                localStorage.removeItem('isStudentAuthenticated');
+                localStorage.removeItem('studentUser');
+                navigate('/lms');
+                return;
+            }
 
             // 2. Fetch Roadmap
             const { data: roadmapData, error: roadmapError } = await supabase
@@ -114,6 +132,14 @@ const CourseRoadmap = () => {
 
             // 2. Update streaks
             await updateStreak();
+
+            // Celebration!
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#10b981', '#3b82f6', '#ffffff']
+            });
 
             // Success!
             setSelectedStep(null);
@@ -183,18 +209,25 @@ const CourseRoadmap = () => {
             }
         });
 
-        const percentage = (score / questions.length) * 100;
+        const totalQuestions = questions.length;
+        const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
+        const passed = percentage >= 80;
+
         setQuizResult({
             score,
-            total: questions.length,
-            percentage,
-            passed: percentage >= 80
+            total: totalQuestions,
+            percentage: Math.round(percentage),
+            passed
         });
 
-        if (percentage >= 80) {
+        if (passed) {
             await handleMarkAsCompleted(selectedStep);
         }
     };
+
+    const overallProgress = roadmap.length > 0
+        ? Math.round((progress.length / roadmap.length) * 100)
+        : 0;
 
     if (loading) {
         return (
@@ -211,25 +244,38 @@ const CourseRoadmap = () => {
         <div className="min-h-screen bg-slate-950 text-slate-100 pb-20">
             {/* Header */}
             <div className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link to="/lms/dashboard" className="p-2 hover:bg-slate-800 rounded-xl transition-colors">
-                            <ChevronLeft className="w-6 h-6 text-slate-400" />
-                        </Link>
-                        <div>
-                            <h1 className="text-lg font-bold text-white leading-tight">{course?.course_name}</h1>
-                            <p className="text-xs text-slate-400">Curriculum Roadmap</p>
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-4">
+                            <Link to="/lms/dashboard" className="p-2 hover:bg-slate-800 rounded-xl transition-colors">
+                                <ChevronLeft className="w-6 h-6 text-slate-400" />
+                            </Link>
+                            <div>
+                                <h1 className="text-lg font-bold text-white leading-tight">{course?.course_name}</h1>
+                                <p className="text-xs text-slate-400">Learning Roadmap</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl">
+                                <Flame className={`w-4 h-4 ${streak > 0 ? 'text-orange-500 animate-pulse' : 'text-slate-600'}`} />
+                                <span className={`text-sm font-bold ${streak > 0 ? 'text-white' : 'text-slate-500'}`}>{streak}</span>
+                            </div>
+                            <div className="hidden sm:flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-xl">
+                                <TrendingUp className="w-4 h-4 text-blue-400" />
+                                <span className="text-sm font-bold text-white">{overallProgress}%</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 px-4 py-2 rounded-2xl shadow-lg shadow-amber-500/5">
-                            <Flame className={`w-6 h-6 ${streak > 0 ? 'text-orange-500 animate-pulse' : 'text-slate-600'}`} />
-                            <div className="flex flex-col">
-                                <span className={`text-xl font-black leading-none ${streak > 0 ? 'text-white' : 'text-slate-500'}`}>{streak}</span>
-                                <span className="text-[10px] font-bold text-amber-500/80 uppercase tracking-tighter">Streak</span>
-                            </div>
-                        </div>
+                    {/* Progress Bar */}
+                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden relative">
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${overallProgress}%` }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 via-emerald-500 to-teal-500 rounded-full"
+                        />
                     </div>
                 </div>
             </div>
@@ -238,10 +284,16 @@ const CourseRoadmap = () => {
             <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-12">
                 <div className="relative">
                     {/* Progress Vertical Line */}
-                    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-slate-800 z-0"></div>
+                    <div className="absolute left-10 top-0 bottom-0 w-1 bg-slate-800/50 z-0 overflow-hidden">
+                        <motion.div
+                            initial={{ height: 0 }}
+                            animate={{ height: `${overallProgress}%` }}
+                            className="w-full bg-gradient-to-b from-blue-500 via-emerald-500 to-teal-500"
+                        />
+                    </div>
 
                     {/* Step Cards */}
-                    <div className="space-y-20 relative z-10">
+                    <div className="space-y-16 relative z-10">
                         {roadmap.map((step, index) => {
                             const completed = isStepCompleted(step.id);
                             const locked = isStepLocked(index);
@@ -250,14 +302,27 @@ const CourseRoadmap = () => {
                                 <div key={step.id} className={`flex gap-12 group ${locked ? 'opacity-50' : 'opacity-100'}`}>
                                     {/* Vertical Indicator */}
                                     <div className="flex flex-col items-center">
-                                        <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center border-4 transform transition-all duration-500 ${completed
-                                            ? 'bg-emerald-500 border-emerald-500/20 text-white rotate-[10deg]'
-                                            : locked
-                                                ? 'bg-slate-900 border-slate-800 text-slate-600'
-                                                : 'bg-slate-900 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)] text-blue-400 ring-4 ring-blue-500/5 rotate-[-5deg]'
-                                            }`}>
-                                            {completed ? <CheckCircle2 className="w-10 h-10" /> : locked ? <Lock className="w-8 h-8" /> : <div className="text-2xl font-black">{step.day_number < 10 ? `0${step.day_number}` : step.day_number}</div>}
-                                        </div>
+                                        <motion.div
+                                            whileHover={!locked ? { scale: 1.1, rotate: [0, -5, 5, 0] } : {}}
+                                            className={`w-20 h-20 rounded-[2rem] flex items-center justify-center border-4 transform transition-all duration-500 relative ${completed
+                                                ? 'bg-emerald-500 border-emerald-500/20 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]'
+                                                : locked
+                                                    ? 'bg-slate-900 border-slate-800 text-slate-600'
+                                                    : 'bg-slate-900 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.2)] text-blue-400 ring-4 ring-blue-500/5'
+                                                }`}>
+                                            {completed ? (
+                                                <CheckCircle2 className="w-10 h-10" />
+                                            ) : locked ? (
+                                                <Lock className="w-8 h-8 opacity-40" />
+                                            ) : (
+                                                <div className="text-2xl font-black">{step.day_number < 10 ? `0${step.day_number}` : step.day_number}</div>
+                                            )}
+
+                                            {/* Pulse effect for current active step */}
+                                            {!locked && !completed && (
+                                                <div className="absolute -inset-1 bg-blue-500 rounded-[2rem] animate-ping opacity-20 -z-10"></div>
+                                            )}
+                                        </motion.div>
                                     </div>
 
                                     {/* Card */}
@@ -402,32 +467,47 @@ const CourseRoadmap = () => {
                                 {selectedStep.step_type === 'quiz' && (
                                     <div className="space-y-8">
                                         {quizResult ? (
-                                            <div className="text-center py-10 space-y-6 animate-in zoom-in-95">
-                                                <div className={`w-24 h-24 rounded-full mx-auto flex items-center justify-center text-white ${quizResult.passed ? 'bg-emerald-500 shadow-emerald-500/30 shadow-2xl' : 'bg-red-500 shadow-red-500/30'}`}>
-                                                    {quizResult.passed ? <Trophy className="w-12 h-12" /> : <AlertCircle className="w-12 h-12" />}
+                                            <div className="text-center py-10 space-y-6 animate-in zoom-in-95 duration-500">
+                                                <div className={`w-28 h-28 rounded-full mx-auto flex items-center justify-center text-white relative ${quizResult.passed ? 'bg-emerald-500 shadow-emerald-500/30 shadow-2xl' : 'bg-red-500 shadow-red-500/30'}`}>
+                                                    {quizResult.passed ? <Trophy className="w-14 h-14" /> : <AlertCircle className="w-14 h-14" />}
+                                                    <div className="absolute -inset-4 border-2 border-dashed border-slate-700 rounded-full animate-spin-slow"></div>
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-3xl font-black text-white">{quizResult.passed ? 'Excellent Work!' : 'Not Quite There'}</h3>
-                                                    <p className="text-slate-400 mt-2">You scored <span className="text-white font-bold">{quizResult.score}/{quizResult.total}</span> ({quizResult.percentage}%)</p>
-                                                </div>
-                                                {!quizResult.passed && (
-                                                    <div className="bg-red-500/10 p-5 rounded-3xl border border-red-500/20 max-w-md mx-auto">
-                                                        <p className="text-sm text-red-400 font-medium">
-                                                            Score Requirement: <span className="text-white font-bold">80%</span>.
-                                                            Keep studying and try again to unlock your next milestone!
-                                                        </p>
+                                                    <h3 className="text-4xl font-black text-white tracking-tight">{quizResult.passed ? 'Mission Accomplished!' : 'Target Not Met'}</h3>
+                                                    <div className="flex flex-col items-center mt-4">
+                                                        <span className="text-slate-400 font-medium">Your Accuracy Grade</span>
+                                                        <div className="w-64 h-3 bg-slate-800 rounded-full mt-3 overflow-hidden border border-slate-700">
+                                                            <motion.div
+                                                                initial={{ width: 0 }}
+                                                                animate={{ width: `${quizResult.percentage}%` }}
+                                                                className={`h-full ${quizResult.passed ? 'bg-emerald-500' : 'bg-red-500'}`}
+                                                            />
+                                                        </div>
+                                                        <span className={`text-2xl font-black mt-2 ${quizResult.passed ? 'text-emerald-400' : 'text-red-400'}`}>{quizResult.percentage}%</span>
                                                     </div>
-                                                )}
+                                                </div>
+
+                                                <div className={`p-6 rounded-[32px] border ${quizResult.passed ? 'bg-emerald-500/5 border-emerald-500/10' : 'bg-red-500/5 border-red-500/10'} max-w-sm mx-auto`}>
+                                                    <p className="text-sm text-slate-400 leading-relaxed">
+                                                        {quizResult.passed
+                                                            ? "You've successfully mastered this module. The next milestone is now unlocked!"
+                                                            : `Passing requires at least 80% accuracy. You currently need ${Math.ceil(80 - quizResult.percentage)}% more to proceed.`}
+                                                    </p>
+                                                </div>
+
                                                 <div className="flex justify-center pt-4">
-                                                    <button
-                                                        onClick={() => {
-                                                            setQuizResult(null);
-                                                            setQuizAnswers({});
-                                                        }}
-                                                        className="px-12 py-4 bg-white text-slate-900 hover:bg-slate-200 font-black rounded-2xl transition-all transform hover:scale-105 active:scale-95 shadow-xl shadow-white/10"
-                                                    >
-                                                        Try Again Now
-                                                    </button>
+                                                    {!quizResult.passed && (
+                                                        <button
+                                                            onClick={() => {
+                                                                setQuizResult(null);
+                                                                setQuizAnswers({});
+                                                            }}
+                                                            className="px-12 py-4 bg-white text-slate-900 hover:bg-slate-200 font-black rounded-2xl transition-all transform hover:scale-105 active:scale-95 shadow-xl shadow-white/10 flex items-center gap-2"
+                                                        >
+                                                            Try Again Now
+                                                            <ArrowRight className="w-5 h-5" />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                         ) : (

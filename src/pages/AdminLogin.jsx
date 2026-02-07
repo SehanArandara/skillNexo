@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import { User, Lock, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const AdminLogin = () => {
@@ -10,6 +10,14 @@ const AdminLogin = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
+    // Check if already authenticated
+    React.useEffect(() => {
+        const isAuthenticated = localStorage.getItem('isAdminAuthenticated');
+        if (isAuthenticated === 'true') {
+            navigate('/AdminPanel/dashboard');
+        }
+    }, [navigate]);
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
@@ -17,26 +25,33 @@ const AdminLogin = () => {
 
         try {
             // Check against 'admin_users' table in Supabase
-            const { data, error } = await supabase
+            const { data, error: sbError } = await supabase
                 .from('admin_users')
                 .select('*')
                 .eq('username', username)
-                .eq('password', password)
                 .single();
 
-            if (error) throw error;
+            if (sbError) {
+                if (sbError.code === 'PGRST116') {
+                    setError('Invalid credentials. User not found.');
+                } else {
+                    setError('Connection error. Please try again later.');
+                }
+                setIsLoading(false);
+                return;
+            }
 
-            if (data) {
+            if (data && data.password === password) {
                 // Set session
                 localStorage.setItem('isAdminAuthenticated', 'true');
                 localStorage.setItem('adminUser', JSON.stringify({ username: data.username, role: data.role }));
                 navigate('/AdminPanel/dashboard');
             } else {
-                setError('Invalid credentials. Please try again.');
+                setError('Invalid password. Please try again.');
             }
         } catch (err) {
             console.error('Login error:', err);
-            setError('Invalid credentials or connection error.');
+            setError('An unexpected error occurred.');
         } finally {
             setIsLoading(false);
         }
@@ -70,7 +85,8 @@ const AdminLogin = () => {
                                 type="text"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-100 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-slate-600"
+                                disabled={isLoading}
+                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-100 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-slate-600 disabled:opacity-50"
                                 placeholder="Enter admin username"
                             />
                         </div>
@@ -86,7 +102,8 @@ const AdminLogin = () => {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-100 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-slate-600"
+                                disabled={isLoading}
+                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-100 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-slate-600 disabled:opacity-50"
                                 placeholder="Enter password"
                             />
                         </div>
@@ -100,10 +117,20 @@ const AdminLogin = () => {
 
                     <button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 group"
+                        disabled={isLoading}
+                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 group disabled:opacity-50 disabled:hover:scale-100"
                     >
-                        Sign In to Dashboard
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Authenticating...
+                            </>
+                        ) : (
+                            <>
+                                Sign In to Dashboard
+                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            </>
+                        )}
                     </button>
                 </form>
 

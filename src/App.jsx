@@ -5,7 +5,13 @@ import RefundPolicy from './pages/RefundPolicy';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
 import AdminLogin from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminLayout from './components/admin/AdminLayout';
+import Dashboard from './pages/admin/Dashboard';
+import StudentsList from './pages/admin/StudentsList';
+import StudentView from './pages/admin/StudentView';
+import StudentEdit from './pages/admin/StudentEdit';
+import CoursesList from './pages/admin/CoursesList';
+import Settings from './pages/admin/Settings';
 import StudentLogin from './pages/StudentLogin';
 import StudentDashboard from './pages/StudentDashboard';
 import CourseRoadmap from './pages/CourseRoadmap';
@@ -22,8 +28,16 @@ function App() {
           <Route path="/terms-conditions" element={<TermsConditions />} />
 
           {/* Admin Routes */}
-          <Route path="/AdminPanel" element={<AdminLogin />} />
-          <Route path="/AdminPanel/dashboard" element={<AdminDashboard />} />
+          <Route path="/AdminPanel/login" element={<AdminLogin />} />
+          <Route path="/AdminPanel" element={<AdminLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="students" element={<StudentsList />} />
+            <Route path="students/:id" element={<StudentView />} />
+            <Route path="students/:id/edit" element={<StudentEdit />} />
+            <Route path="courses" element={<CoursesList />} />
+            <Route path="settings" element={<Settings />} />
+            <Route index element={<Navigate to="/AdminPanel/dashboard" replace />} />
+          </Route>
 
           {/* Student Routes */}
           <Route path="/lms" element={<StudentLogin />} />

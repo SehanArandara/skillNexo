@@ -44,9 +44,7 @@ const StudentDashboard = () => {
                                 id,
                                 course_name,
                                 instructor,
-                                duration_days,
-                                description,
-                                thumbnail_url
+                                duration_days
                             )
                         )
                     `)
@@ -55,6 +53,12 @@ const StudentDashboard = () => {
 
                 if (lmsError || !lmsUser) {
                     throw new Error('User not found');
+                }
+
+                // SECURITY CHECK: Auto-logout if account is disabled
+                if (!lmsUser.is_active) {
+                    handleLogout();
+                    return;
                 }
 
                 const transformedStudent = {
@@ -66,7 +70,6 @@ const StudentDashboard = () => {
                         name: e.courses.course_name,
                         instructor: e.courses.instructor,
                         duration: e.courses.duration_days,
-                        description: e.courses.description,
                         enrollmentId: e.id
                     })) || []
                 };
@@ -78,7 +81,10 @@ const StudentDashboard = () => {
 
             } catch (error) {
                 console.error('Error fetching student dashboard data:', error);
-                // If there's an error, we can still use the cached local storage data as fallback
+                if (error.message === 'User not found') {
+                    // This could be due to the 400 error we just saw
+                    console.log('Troubleshooting: Check Supabase query structure.');
+                }
                 const fallbackData = JSON.parse(userStr);
                 setStudent(fallbackData);
             } finally {

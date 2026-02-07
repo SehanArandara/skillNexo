@@ -15,7 +15,7 @@ import {
     Map
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import RoadmapManager from './RoadmapManager';
+import RoadmapManager from '../../components/admin/RoadmapManager';
 
 const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
     if (!isOpen) return null;
@@ -48,7 +48,7 @@ const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
     );
 };
 
-const CoursesManager = () => {
+const CoursesList = () => {
     const [courses, setCourses] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -56,15 +56,12 @@ const CoursesManager = () => {
     const [notification, setNotification] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Delete Modal State
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [courseToDelete, setCourseToDelete] = useState(null);
 
-    // Roadmap State
     const [showRoadmap, setShowRoadmap] = useState(false);
     const [selectedCourseForRoadmap, setSelectedCourseForRoadmap] = useState(null);
 
-    // Fetch courses from Supabase
     const fetchCourses = async () => {
         try {
             const { data, error } = await supabase
@@ -76,7 +73,6 @@ const CoursesManager = () => {
             if (data) setCourses(data);
         } catch (error) {
             console.error('Error fetching courses:', error);
-            showNotification('Failed to load courses', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -98,7 +94,6 @@ const CoursesManager = () => {
 
     const [formData, setFormData] = useState(initialFormState);
 
-    // Categories for dropdown
     const categories = ['AI ML', 'Web Dev', 'Mobile Dev', 'Data Science', 'Cloud Computing', 'Other'];
 
     const showNotification = (message, type = 'success') => {
@@ -156,7 +151,6 @@ const CoursesManager = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Basic Validation
         if (!formData.courseName || !formData.instructor) {
             showNotification('Please fill in all required fields', 'error');
             return;
@@ -164,7 +158,6 @@ const CoursesManager = () => {
 
         try {
             if (editingId) {
-                // Update existing in Supabase
                 const { error } = await supabase
                     .from('courses')
                     .update({
@@ -179,10 +172,8 @@ const CoursesManager = () => {
                     .eq('id', editingId);
 
                 if (error) throw error;
-
                 showNotification('Course updated successfully');
             } else {
-                // Create new in Supabase
                 const { error } = await supabase
                     .from('courses')
                     .insert([{
@@ -198,7 +189,6 @@ const CoursesManager = () => {
                 if (error) throw error;
                 showNotification('Course created successfully');
             }
-            // Refresh list
             fetchCourses();
             setShowForm(false);
         } catch (error) {
@@ -223,6 +213,11 @@ const CoursesManager = () => {
 
     return (
         <div className="space-y-6">
+            <div className="flex flex-col mb-8 text-left">
+                <h1 className="text-3xl font-bold text-white tracking-tight animate-fade-in">Courses</h1>
+                <p className="text-slate-400 text-sm mt-1">Manage curriculum and active courses.</p>
+            </div>
+
             <DeleteModal
                 isOpen={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
@@ -263,7 +258,7 @@ const CoursesManager = () => {
                 {filteredCourses.map((course) => (
                     <div key={course.id} className="bg-slate-900/40 backdrop-blur border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all group">
                         <div className="flex justify-between items-start mb-4">
-                            <div>
+                            <div className="text-left">
                                 <div className="flex items-center gap-2 mb-1">
                                     <h3 className="text-lg font-bold text-slate-100">{course.course_name}</h3>
                                     <span className={`text-[10px] px-2 py-0.5 rounded-full border ${course.is_active
@@ -278,7 +273,7 @@ const CoursesManager = () => {
                                     {course.instructor}
                                 </div>
                             </div>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex gap-2">
                                 <button
                                     onClick={() => {
                                         setSelectedCourseForRoadmap(course);
@@ -305,13 +300,13 @@ const CoursesManager = () => {
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 mb-4">
-                            <div className="p-2 bg-slate-950/50 rounded-lg border border-slate-800/50">
+                            <div className="p-2 bg-slate-950/50 rounded-lg border border-slate-800/50 text-left">
                                 <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
                                     <Clock className="w-3 h-3" /> Duration
                                 </p>
                                 <p className="text-sm text-slate-300">{course.duration_days} Days</p>
                             </div>
-                            <div className="p-2 bg-slate-950/50 rounded-lg border border-slate-800/50">
+                            <div className="p-2 bg-slate-950/50 rounded-lg border border-slate-800/50 text-left">
                                 <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
                                     <Tag className="w-3 h-3" /> Category
                                 </p>
@@ -319,7 +314,7 @@ const CoursesManager = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2 text-left">
                             <div className="text-sm text-slate-400 flex items-start gap-2">
                                 <Calendar className="w-4 h-4 mt-0.5 shrink-0" />
                                 <span className="text-xs md:text-sm">{course.online_classes}</span>
@@ -350,7 +345,7 @@ const CoursesManager = () => {
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                        <form onSubmit={handleSubmit} className="p-6 space-y-6 text-left">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2 md:col-span-2">
                                     <label className="text-sm font-medium text-slate-300">Course Name</label>
@@ -483,4 +478,4 @@ const CoursesManager = () => {
     );
 };
 
-export default CoursesManager;
+export default CoursesList;
