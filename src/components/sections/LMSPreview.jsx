@@ -1,19 +1,21 @@
 import { Section } from '../ui/Section'
 import { motion } from 'framer-motion'
-import { Flame, CheckCircle, Award, Lock, PlayCircle, Star, Target } from 'lucide-react'
+import { Flame, Award, PlayCircle, Target } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
+
+// Import LMS Screenshots
+import lmsImg1 from '../../assets/LMS/1.png'
+import lmsImg2 from '../../assets/LMS/2.png'
+import lmsImg3 from '../../assets/LMS/3.png'
 
 export function LMSSneakPeek() {
     const { t, language } = useLanguage();
 
-    const sampleRoadmapItems = t('lms_preview.roadmap_items');
-
-    // Status logic for demo: 1-3 completed, 4 active, 5-6 locked
-    const roadmapWithStatus = Array.isArray(sampleRoadmapItems) ? sampleRoadmapItems.map((item, idx) => ({
-        ...item,
-        id: idx + 1,
-        status: idx < 3 ? 'completed' : idx === 3 ? 'active' : 'locked'
-    })) : [];
+    const screenshots = [
+        { src: lmsImg1, title: t('lms_preview.screenshots.dashboard') },
+        { src: lmsImg2, title: t('lms_preview.screenshots.roadmap') },
+        { src: lmsImg3, title: t('lms_preview.screenshots.tracking') }
+    ];
 
     return (
         <Section id="lms" dark className="overflow-hidden">
@@ -105,95 +107,48 @@ export function LMSSneakPeek() {
                     </motion.div>
                 </div>
 
-                {/* --- Roadmap Interactive Mockup (Full Width) --- */}
-                <motion.div
-                    initial={{ y: 50, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.8 }}
-                    className="rounded-[3rem] border border-white/10 bg-[#0a0c10] shadow-3xl overflow-hidden relative z-10"
-                >
-                    {/* Mock UI Header */}
-                    <div className="h-16 border-b border-white/5 flex items-center px-8 justify-between bg-white/[0.02]">
-                        <div className="flex items-center gap-4 text-xs font-bold text-gray-500 tracking-[0.2em] uppercase">
-                            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">SN</div>
-                            {t('lms_preview.badge')}
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2 bg-orange-500/10 px-4 py-2 rounded-full border border-orange-500/20">
-                                <Flame size={16} className="text-orange-500" fill="currentColor" />
-                                <span className="text-sm font-black text-orange-500">14 {t('lms_preview.streak_suffix')}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col lg:flex-row min-h-[500px]">
-                        {/* Sidebar */}
-                        <div className="w-full lg:w-80 border-r border-white/5 p-8 space-y-8 bg-white/[0.01]">
-                            <div>
-                                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">{t('lms_preview.current_course')}</div>
-                                <div className="p-5 rounded-3xl bg-white/5 border border-white/10 shadow-inner">
-                                    <div className="text-sm font-black text-white mb-2">Full-Stack AI SaaS Masterclass</div>
-                                    <div className="w-full bg-white/5 h-2 rounded-full mt-4 overflow-hidden">
-                                        <div className="bg-gradient-to-r from-primary to-accent h-full w-[65%]" />
+                {/* --- LMS Screenshot Grid --- */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {screenshots.map((shot, idx) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ y: 30, opacity: 0 }}
+                            whileInView={{ y: 0, opacity: 1 }}
+                            transition={{ delay: idx * 0.1, duration: 0.6 }}
+                            viewport={{ once: true }}
+                            className="group relative"
+                        >
+                            <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#0a0c10] shadow-2xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-primary/5">
+                                {/* Browser Mockup Header */}
+                                <div className="h-8 bg-white/5 border-b border-white/5 flex items-center px-4 gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-400/20" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-yellow-400/20" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-400/20" />
+                                    <div className="ml-2 text-[8px] font-bold text-gray-500 uppercase tracking-[0.15em] truncate">
+                                        SkillNexo LMS
                                     </div>
-                                    <div className="text-[10px] text-gray-500 mt-3 font-bold">65% {t('lms_preview.completed_label')}</div>
+                                </div>
+
+                                {/* Image Container */}
+                                <div className="aspect-[4/3] overflow-hidden bg-black">
+                                    <img
+                                        src={shot.src}
+                                        alt={shot.title}
+                                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                                    />
+                                </div>
+
+                                {/* Title Overlay */}
+                                <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                                    <p className="text-[10px] font-black text-white uppercase tracking-widest">{shot.title}</p>
                                 </div>
                             </div>
 
-                            <nav className="space-y-2">
-                                {(t('lms_preview.nav_items') || []).map((item, i) => (
-                                    <div key={item} className={`flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${i === 1 ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'text-gray-500 hover:text-gray-300'}`}>
-                                        {item}
-                                    </div>
-                                ))}
-                            </nav>
-                        </div>
-
-                        {/* Main Roadmap Area */}
-                        <div className="flex-1 p-8 lg:p-16 bg-[#08090d]">
-                            <div className="max-w-xl mx-auto">
-                                <div className="flex items-center justify-between mb-12">
-                                    <h3 className="text-2xl font-black flex items-center gap-3">
-                                        <Target className="text-primary" size={24} />
-                                        {t('lms_preview.roadmap_title')}
-                                    </h3>
-                                    <div className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">{t('lms_preview.updated_label')}</div>
-                                </div>
-
-                                <div className="space-y-5 relative">
-                                    <div className="absolute left-6 top-10 bottom-10 w-px bg-gradient-to-b from-primary via-primary/50 to-transparent" />
-
-                                    {roadmapWithStatus.map((item) => (
-                                        <motion.div
-                                            key={item.id}
-                                            initial={{ x: -20, opacity: 0 }}
-                                            whileInView={{ x: 0, opacity: 1 }}
-                                            className={`relative flex items-center gap-6 p-5 rounded-3xl border transition-all duration-500 group
-                                                ${item.status === 'active'
-                                                    ? 'bg-primary/5 border-primary/40 shadow-2xl shadow-primary/10'
-                                                    : 'bg-white/[0.01] border-white/5 opacity-60'
-                                                }`}
-                                        >
-                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all 
-                                                ${item.status === 'completed' ? 'bg-green-500/20 border-green-500 text-green-500' :
-                                                    item.status === 'active' ? 'bg-primary border-primary text-white' : 'bg-[#0a0c10] border-white/10 text-gray-700'}`}
-                                            >
-                                                {item.status === 'completed' ? <CheckCircle size={20} /> : item.status === 'active' ? <PlayCircle size={20} /> : <Lock size={20} />}
-                                            </div>
-
-                                            <div className="flex-1">
-                                                <div className="text-[10px] font-black uppercase tracking-tighter text-gray-500 mb-1">
-                                                    Module 0{item.id} • {item.type}
-                                                </div>
-                                                <h4 className={`text-lg font-black ${item.status === 'completed' ? 'line-through text-gray-600' : 'text-white'}`}>{item.title}</h4>
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
+                            {/* Decorative Glow */}
+                            <div className="absolute -inset-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-[2rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+                        </motion.div>
+                    ))}
+                </div>
             </div>
         </Section>
     )

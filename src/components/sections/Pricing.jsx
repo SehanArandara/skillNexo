@@ -12,8 +12,7 @@ export function Pricing() {
             price: t('pricing.full.price'),
             description: t('pricing.full.description'),
             features: t('pricing.full.features'),
-            highlight: true,
-            badge: t('pricing.full.badge')
+            highlight: true
         }
     ]
 
@@ -37,12 +36,6 @@ export function Pricing() {
                                 }
             `}
                         >
-                            {tier.highlight && (
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-                                    {tier.badge}
-                                </div>
-                            )}
-
                             <div className="mb-8">
                                 <h3 className="text-xl font-medium text-gray-300 mb-2">{tier.name}</h3>
                                 <div className="text-4xl font-bold mb-4">{tier.price}</div>

@@ -30,16 +30,25 @@ export function Registration() {
                     .eq('is_active', true)
 
                 if (error) throw error
-                if (data) setCourses(data)
+                if (data) {
+                    setCourses(data)
+                    if (data.length === 1) {
+                        setSelectedCourse(data[0].id.toString())
+                    }
+                }
             } catch (err) {
                 console.error('Error fetching courses:', err)
                 // Fallback to JSON data if DB fetch fails (for demo purposes)
                 import('../../data/courses.json').then(mod => {
-                    setCourses(mod.default.map(c => ({
+                    const fallbackCourses = mod.default.map(c => ({
                         id: c.id,
                         course_name: c.courseName,
                         category: c.category
-                    })))
+                    }))
+                    setCourses(fallbackCourses)
+                    if (fallbackCourses.length === 1) {
+                        setSelectedCourse(fallbackCourses[0].id.toString())
+                    }
                 })
             }
         }

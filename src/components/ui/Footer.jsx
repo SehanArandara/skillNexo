@@ -56,8 +56,8 @@ export function Footer() {
                             </li>
                             <li className="flex items-center gap-2 text-gray-400 text-sm">
                                 <Mail size={16} className="text-primary" />
-                                <a href="mailto:sdarandara123@gmail.com" className="hover:text-primary transition-colors">
-                                    sdarandara123@gmail.com
+                                <a href="mailto:skillnexo.info@gmail.com" className="hover:text-primary transition-colors">
+                                    skillnexo.info@gmail.com
                                 </a>
                             </li>
                         </ul>
@@ -65,7 +65,7 @@ export function Footer() {
                         {/* Social Media */}
                         <div className="flex gap-4 mt-6">
                             <a
-                                href="https://facebook.com"
+                                href="https://www.facebook.com/people/SkillNexo/61583558542545/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary/20 hover:border-primary/50 transition-all"
@@ -73,7 +73,7 @@ export function Footer() {
                                 <Facebook size={20} />
                             </a>
                             <a
-                                href="https://linkedin.com"
+                                href="https://www.linkedin.com/company/skillnexo-edu/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary/20 hover:border-primary/50 transition-all"
@@ -81,7 +81,7 @@ export function Footer() {
                                 <Linkedin size={20} />
                             </a>
                             <a
-                                href="https://youtube.com"
+                                href="https://www.youtube.com/@sehan3945"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary/20 hover:border-primary/50 transition-all"

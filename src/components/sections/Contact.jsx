@@ -41,7 +41,7 @@ export function Contact() {
 
                     {/* Email */}
                     <motion.a
-                        href="mailto:sdarandara123@gmail.com"
+                        href="mailto:skillnexo.info@gmail.com"
                         whileHover={{ scale: 1.02 }}
                         className="flex flex-col items-center justify-center p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10 transition-all cursor-pointer group"
                     >
@@ -49,7 +49,7 @@ export function Contact() {
                             <Mail size={32} />
                         </div>
                         <h3 className="text-xl font-bold text-white mb-1">{t('contact.email')}</h3>
-                        <p className="text-gray-400 font-mono text-lg">sdarandara123@gmail.com</p>
+                        <p className="text-gray-400 font-mono text-lg">skillnexo.info@gmail.com</p>
                     </motion.a>
                 </div>
             </div>

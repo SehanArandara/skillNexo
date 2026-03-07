@@ -1,6 +1,6 @@
 {
     "hero": {
-        "badge": "🚀 Join the Top 1% of AI Engineers",
+        "badge": "EMPOWERING SRI LANKA THROUGH SOFTWARE ENGINEERING & AI",
         "title_line1": "The Ultimate All-in-One Course",
         "title_line2": "Web Development meets AI & ML.",
         "description": "A comprehensive 2-month masterclass covering Full-Stack Web Dev and AI/ML. Master modern technology through a structured, step-by-step curriculum. 16 days of deep learning to transform your career.",
@@ -157,7 +157,6 @@
             "name": "Full Course",
             "price": "LKR 8,000",
             "description": "The complete 2-month intensive program.",
-            "badge": "Most Popular",
             "features": [
                 "Online classes via Zoom",
                 "2 months duration (2 days/week)",
@@ -224,6 +223,11 @@
                 "title": "Neural Networks Deep Dive",
                 "type": "project"
             }
-        ]
+        ],
+        "screenshots": {
+            "dashboard": "Smart Dashboard",
+            "roadmap": "Interactive Roadmap",
+            "tracking": "Progress Tracking"
+        }
     }
 }

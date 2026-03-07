@@ -1,6 +1,6 @@
 {
     "hero": {
-        "badge": "🚀 ඉහළම 1% AI ඉංජිනේරුවන් අතරට එක්වන්න",
+        "badge": "EMPOWERING SRI LANKA 🇱🇰 THROUGH SOFTWARE ENGINEERING & AI",
         "title_line1": "Web Development + AI  පාඨමාලාව",
         "title_line2": "Web Dev + AI  ප්‍රවීණයෙක් වන්න ",
         "description": "Full-Stack Web Development සහ AI/ML ආවරණය වන මාස 2ක පුළුල් මාස්ටර් පන්තියක්. පියවරෙන් පියවර විෂය මාලාවක් හරහා නවීන තාක්ෂණය ප්‍රගුණ කරන්න.",
@@ -157,7 +157,6 @@
             "name": "සම්පූර්ණ පාඨමාලාව",
             "price": "LKR 8,000",
             "description": "මාස 2ක සම්පූර්ණ වැඩසටහන.",
-            "badge": "වැඩිපුරම ඉල්ලුමක් ඇති",
             "features": [
                 "Zoom හරහා ඔන්ලයින් පන්ති",
                 "මාස 2ක කාලය (සතියට දින 2ක්)",
@@ -224,6 +223,11 @@
                 "title": "Neural Networks Deep Dive",
                 "type": "project"
             }
-        ]
+        ],
+        "screenshots": {
+            "dashboard": "ස්මාර්ට් උපකරණ පුවරුව",
+            "roadmap": "අන්තර්ක්‍රියාකාරී මාර්ග සිතියම",
+            "tracking": "ප්‍රගතිය නිරීක්ෂණය"
+        }
     }
 }

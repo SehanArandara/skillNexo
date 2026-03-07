@@ -27,7 +27,9 @@ export function Navbar() {
 
     return (
         <nav
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${isScrolled ? 'bg-dark-bg/80 backdrop-blur-md border-white/10 py-4' : 'bg-transparent border-transparent py-6'
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b bg-dark-bg ${isScrolled
+                ? 'md:bg-dark-bg/80 md:backdrop-blur-md border-white/10 py-4'
+                : 'md:bg-transparent border-transparent py-6'
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
