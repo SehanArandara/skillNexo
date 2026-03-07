@@ -172,56 +172,11 @@ const StudentView = () => {
     const handleWhatsAppSend = () => {
         if (!student || !student.lms_account) return;
 
-        // Clean phone number (remove non-digits)
+        // Clean phone number (remove non-digits, ensuring it's in international format)
         const phoneNumber = student.whatsapp.replace(/\D/g, '');
         const message = `Hello ${student.name}! 🎓\n\nYour LMS access for SkillNexo has been provisioned.\n\n📧 Email: ${student.lms_account.email}\n🔑 Password: ${student.lms_account.password}\n\nYou can log in at: ${window.location.origin}/lms\n\nHappy Learning! 🚀`;
         const encodedMessage = encodeURIComponent(message);
 
-        window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
-    };
-
-    const handleWhatsAppWelcome = () => {
-        if (!student || !student.whatsapp) return;
-        const phoneNumber = student.whatsapp.replace(/\D/g, '');
-        const message = `ස්තූතියි! 🙌
-*SkillNexo – Web Development + AI/ML පාඨමාලාව* සමඟ ලියාපදිංචි වීම ගැන ඔබව අපි සාදරයෙන් පිළිගන්නවා. 🚀
-
-අපගේ පාඨමාලාව සහ ඉගෙනුම් ක්‍රියාවලිය පිළිබඳ සම්පූර්ණ අවබෝධයක් ලබාගැනීමට කරුණාකර පහත වීඩියෝ *පිළිවෙළින්* නරඹන්න.
-
-1️⃣ *පාඨමාලාව පිළිබඳ හැඳින්වීම*
-https://youtu.be/9NMjgumglbI
-
-2️⃣ *LMS (Learning Management System) භාවිතා කරන ආකාරය*
-https://youtu.be/dblVFYnYh2g
-
-3️⃣ *පාඨමාලා විෂය මාලාව (Roadmap) පැහැදිලි කිරීම*
-https://youtu.be/OPqqEzMApzw
-
----
-
-💳 *පාඨමාලාව සඳහා ගෙවීම් සිදු කිරීමට අවශ්‍ය නම්, කරුණාකර පහත බැංකු ගිණුම් විස්තර භාවිතා කරන්න.*
-
-🏦 *Bank Details*
-
-Bank Name: [බැංකුවේ නම]
-Account Name: [ගිණුම් හිමියාගේ නම]
-Account Number: [ගිණුම් අංකය]
-Branch: [ශාඛාව]
-
-📌 ගෙවීම සිදු කරන විට *Reference Number* සහ *Remarks* දෙකම සඳහා *ඔබගේ දුරකථන අංකය ඇතුළත් කරන්න.*
-
-📌 ගෙවීම සිදු කළ පසු, කරුණාකර *ගෙවීම් රිසිට්පත (Payment Receipt)* අප වෙත *WhatsApp මගින් එවන්න.*
-
----
-
-📩 පාඨමාලාව සම්බන්ධයෙන් ඔබට කිසියම් ගැටලුවක් තිබේ නම්, හෝ පාඨමාලාව මෙහෙයවන *Instructor – Sehan Arandara* සමඟ සම්බන්ධ වීමට අවශ්‍ය නම්, කරුණාකර අප වෙත පණිවිඩයක් එවන්න.
-
-අපි ඔබට සහාය වීමට සැමවිටම සූදානම්. 🤝
-
-ස්තූතියි!
-*Team SkillNexo* 💻🧠`;
-
-        const encodedMessage = encodeURIComponent(message);
         window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
     };
 
@@ -303,16 +258,7 @@ Branch: [ශාඛාව]
                         <h3 className="text-lg font-semibold text-white mb-6">Contact & Registration</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <DetailItem icon={<Mail className="w-4 h-4 text-blue-400" />} label="Email Address" value={student.email} />
-                            <div className="space-y-4">
-                                <DetailItem icon={<Phone className="w-4 h-4 text-emerald-400" />} label="WhatsApp Number" value={student.whatsapp} />
-                                <button
-                                    onClick={handleWhatsAppWelcome}
-                                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition-all"
-                                >
-                                    <MessageCircle className="w-3.5 h-3.5" />
-                                    SEND WELCOME MESSAGE
-                                </button>
-                            </div>
+                            <DetailItem icon={<Phone className="w-4 h-4 text-emerald-400" />} label="WhatsApp Number" value={student.whatsapp} />
                             <DetailItem icon={<Calendar className="w-4 h-4 text-purple-400" />} label="Registration Date" value={new Date(student.created_at).toLocaleDateString(undefined, { dateStyle: 'long' })} />
                             <DetailItem icon={<Shield className="w-4 h-4 text-amber-400" />} label="Verified By" value={student.verified_by || 'Not Verified'} />
                         </div>
