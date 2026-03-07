@@ -42,43 +42,44 @@ const StudentsList = () => {
             phoneNumber = '94' + phoneNumber.substring(1);
         }
 
-        const message = `ස්තූතියි! 🙌
-*SkillNexo – Web Development + AI/ML පාඨමාලාව* සමඟ ලියාපදිංචි වීම ගැන ඔබව අපි සාදරයෙන් පිළිගන්නවා. 🚀
+        //         const message = `ස්තූතියි! 🙌
+        // *SkillNexo – Web Development + AI/ML පාඨමාලාව* සමඟ ලියාපදිංචි වීම ගැන ඔබව අපි සාදරයෙන් පිළිගන්නවා. 🚀
 
-අපගේ පාඨමාලාව සහ ඉගෙනුම් ක්‍රියාවලිය පිළිබඳ සම්පූර්ණ අවබෝධයක් ලබාගැනීමට කරුණාකර පහත වීඩියෝ *පිළිවෙළින්* නරඹන්න.
+        // අපගේ පාඨමාලාව සහ ඉගෙනුම් ක්‍රියාවලිය පිළිබඳ සම්පූර්ණ අවබෝධයක් ලබාගැනීමට කරුණාකර පහත වීඩියෝ *පිළිවෙළින්* නරඹන්න.
 
-1️⃣ *පාඨමාලාව පිළිබඳ හැඳින්වීම*
-https://youtu.be/9NMjgumglbI
+        // 1️⃣ *පාඨමාලාව පිළිබඳ හැඳින්වීම*
+        // https://youtu.be/9NMjgumglbI
 
-2️⃣ *LMS (Learning Management System) භාවිතා කරන ආකාරය*
-https://youtu.be/dblVFYnYh2g
+        // 2️⃣ *LMS (Learning Management System) භාවිතා කරන ආකාරය*
+        // https://youtu.be/dblVFYnYh2g
 
-3️⃣ *පාඨමාලා විෂය මාලාව (Roadmap) පැහැදිලි කිරීම*
-https://youtu.be/OPqqEzMApzw
+        // 3️⃣ *පාඨමාලා විෂය මාලාව (Roadmap) පැහැදිලි කිරීම*
+        // https://youtu.be/OPqqEzMApzw
 
----
+        // ---
 
-💳 *පාඨමාලාව සඳහා ගෙවීම් සිදු කිරීමට අවශ්‍ය නම්, කරුණාකර පහත බැංකු ගිණුම් විස්තර භාවිතා කරන්න.*
+        // 💳 *පාඨමාලාව සඳහා ගෙවීම් සිදු කිරීමට අවශ්‍ය නම්, කරුණාකර පහත බැංකු ගිණුම් විස්තර භාවිතා කරන්න.*
 
-🏦 *Bank Details*
+        // 🏦 *Bank Details*
 
-Bank Name: [බැංකුවේ නම]
-Account Name: [ගිණුම් හිමියාගේ නම]
-Account Number: [ගිණුම් අංකය]
-Branch: [ශාඛාව]
+        // Bank Name: [බැංකුවේ නම]
+        // Account Name: [ගිණුම් හිමියාගේ නම]
+        // Account Number: [ගිණුම් අංකය]
+        // Branch: [ශාඛාව]
 
-📌 ගෙවීම සිදු කරන විට *Reference Number* සහ *Remarks* දෙකම සඳහා *ඔබගේ දුරකථන අංකය ඇතුළත් කරන්න.*
+        // 📌 ගෙවීම සිදු කරන විට *Reference Number* සහ *Remarks* දෙකම සඳහා *ඔබගේ දුරකථන අංකය ඇතුළත් කරන්න.*
 
-📌 ගෙවීම සිදු කළ පසු, කරුණාකර *ගෙවීම් රිසිට්පත (Payment Receipt)* අප වෙත *WhatsApp මගින් එවන්න.*
+        // 📌 ගෙවීම සිදු කළ පසු, කරුණාකර *ගෙවීම් රිසිට්පත (Payment Receipt)* අප වෙත *WhatsApp මගින් එවන්න.*
 
----
+        // ---
 
-📩 පාඨමාලාව සම්බන්ධයෙන් ඔබට කිසියම් ගැටලුවක් තිබේ නම්, හෝ පාඨමාලාව මෙහෙයවන *Instructor – Sehan Arandara* සමඟ සම්බන්ධ වීමට අවශ්‍ය නම්, කරුණාකර අප වෙත පණිවිඩයක් එවන්න.
+        // 📩 පාඨමාලාව සම්බන්ධයෙන් ඔබට කිසියම් ගැටලුවක් තිබේ නම්, හෝ පාඨමාලාව මෙහෙයවන *Instructor – Sehan Arandara* සමඟ සම්බන්ධ වීමට අවශ්‍ය නම්, කරුණාකර අප වෙත පණිවිඩයක් එවන්න.
 
-අපි ඔබට සහාය වීමට සැමවිටම සූදානම්. 🤝
+        // අපි ඔබට සහාය වීමට සැමවිටම සූදානම්. 🤝
 
-ස්තූතියි!
-*Team SkillNexo* 💻🧠`;
+        // ස්තූතියි!
+        // *Team SkillNexo* 💻🧠`;
+        const message = ""
 
         const encodedMessage = encodeURIComponent(message);
         window.open(`https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`, '_blank');
