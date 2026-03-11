@@ -15,10 +15,24 @@ import Settings from './pages/admin/Settings';
 import StudentLogin from './pages/StudentLogin';
 import StudentDashboard from './pages/StudentDashboard';
 import CourseRoadmap from './pages/CourseRoadmap';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { trackPageView } from './utils/pixel';
+
+function PageViewTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageView();
+  }, [location]);
+
+  return null;
+}
 
 function App() {
   return (
     <BrowserRouter>
+      <PageViewTracker />
       <LanguageProvider>
         <Routes>
           <Route path="/" element={<Home />} />

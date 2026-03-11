@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { motion } from 'framer-motion'
 import { CheckCircle, AlertCircle, Landmark } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
+import { trackRegistration } from '../../utils/pixel'
 
 export function Registration() {
     const { t } = useLanguage()
@@ -105,6 +106,14 @@ export function Registration() {
                 .single()
 
             if (error) throw error
+
+            // Track with Meta Pixel
+            const course = courses.find(c => c.id.toString() === selectedCourse);
+            trackRegistration({
+                course_name: course?.course_name || 'Selected Course',
+                level: formData.level,
+                email: formData.email // Meta Pixel can use hashed email for advanced matching, but standard event is fine for now
+            });
 
             setRegisteredId(data.id)
             setStatus('success')
