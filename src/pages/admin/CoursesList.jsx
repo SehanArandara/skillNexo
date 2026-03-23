@@ -89,7 +89,9 @@ const CoursesList = () => {
         onlineClasses: '',
         category: 'Web Dev',
         isActive: true,
-        remark: ''
+        remark: '',
+        recordingListUrl: '',
+        resourceUrl: ''
     };
 
     const [formData, setFormData] = useState(initialFormState);
@@ -115,7 +117,9 @@ const CoursesList = () => {
             onlineClasses: course.online_classes,
             category: course.category,
             isActive: course.is_active,
-            remark: course.remark || ''
+            remark: course.remark || '',
+            recordingListUrl: course.recording_list_url || '',
+            resourceUrl: course.resource_url || ''
         });
         setEditingId(course.id);
         setShowForm(true);
@@ -167,7 +171,9 @@ const CoursesList = () => {
                         online_classes: formData.onlineClasses,
                         category: formData.category,
                         is_active: formData.isActive,
-                        remark: formData.remark
+                        remark: formData.remark,
+                        recording_list_url: formData.recordingListUrl,
+                        resource_url: formData.resourceUrl
                     })
                     .eq('id', editingId);
 
@@ -183,7 +189,9 @@ const CoursesList = () => {
                         online_classes: formData.onlineClasses,
                         category: formData.category,
                         is_active: formData.isActive,
-                        remark: formData.remark
+                        remark: formData.remark,
+                        recording_list_url: formData.recordingListUrl,
+                        resource_url: formData.resourceUrl
                     }]);
 
                 if (error) throw error;
@@ -430,6 +438,28 @@ const CoursesList = () => {
                                         onChange={(e) => setFormData({ ...formData, onlineClasses: e.target.value })}
                                         className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
                                         placeholder="e.g. 16 days / 8 weeks - 2 classes for one week"
+                                    />
+                                </div>
+
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className="text-sm font-medium text-slate-300">Course Recording List URL</label>
+                                    <input
+                                        type="url"
+                                        value={formData.recordingListUrl}
+                                        onChange={(e) => setFormData({ ...formData, recordingListUrl: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
+                                        placeholder="e.g. https://docs.google.com/document/..."
+                                    />
+                                </div>
+
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className="text-sm font-medium text-slate-300">Course Resources Drive Link</label>
+                                    <input
+                                        type="url"
+                                        value={formData.resourceUrl}
+                                        onChange={(e) => setFormData({ ...formData, resourceUrl: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
+                                        placeholder="e.g. https://drive.google.com/drive/folders/..."
                                     />
                                 </div>
 
