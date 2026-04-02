@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
     ChevronLeft,
     Flame,
     Lock,
-    PlayCircle,
     CheckCircle2,
-    Calendar,
     Video,
     FileText,
     HelpCircle,
@@ -16,20 +14,18 @@ import {
     Trophy,
     Target,
     Link as LinkIcon,
-    X,
     TrendingUp,
     AlertCircle,
     GraduationCap,
     ListVideo,
     FolderOpen,
-    Layers,
     ExternalLink,
     CheckSquare,
-    Square
+    Square,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import confetti from 'canvas-confetti';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const CourseRoadmap = () => {
     const { courseId } = useParams();
@@ -65,7 +61,6 @@ const CourseRoadmap = () => {
             if (courseError) throw courseError;
             setCourse(courseData);
 
-            // Security check
             const { data: userData, error: userError } = await supabase
                 .from('lms_users')
                 .select('is_active')
@@ -112,7 +107,6 @@ const CourseRoadmap = () => {
 
     const isStepCompleted = (stepId) => progress.some(p => p.step_id === stepId);
 
-    // ── Group roadmap steps by day_number
     const groupedByDay = roadmap.reduce((acc, step) => {
         const key = step.day_number;
         if (!acc[key]) acc[key] = [];
@@ -122,13 +116,11 @@ const CourseRoadmap = () => {
 
     const sortedDayKeys = Object.keys(groupedByDay).map(Number).sort((a, b) => a - b);
 
-    // A full "day group" is completed only when ALL activities in it are done
     const isDayGroupCompleted = (dayNumber) => {
         const steps = groupedByDay[dayNumber] || [];
         return steps.every(s => isStepCompleted(s.id));
     };
 
-    // A day group is locked if the previous group is not fully completed
     const isDayGroupLocked = (dayKeyIndex) => {
         if (dayKeyIndex === 0) return false;
         const prevDayKey = sortedDayKeys[dayKeyIndex - 1];
@@ -141,6 +133,16 @@ const CourseRoadmap = () => {
     const overallProgress = sortedDayKeys.length > 0
         ? Math.round((completedGroups / sortedDayKeys.length) * 100)
         : 0;
+
+    // Find the next incomplete step after the currently selected one
+    const getNextStep = () => {
+        if (!selectedStep) return null;
+        const currentIdx = roadmap.findIndex(s => s.id === selectedStep.id);
+        for (let i = currentIdx + 1; i < roadmap.length; i++) {
+            if (!isStepCompleted(roadmap[i].id)) return roadmap[i];
+        }
+        return null;
+    };
 
     const handleMarkAsCompleted = async (step) => {
         if (isSubmitting) return;
@@ -165,7 +167,7 @@ const CourseRoadmap = () => {
                 colors: ['#10b981', '#3b82f6', '#ffffff']
             });
 
-            setSelectedStep(null);
+            // Keep overlay open so student can see completion state & navigate to next step
             fetchCourseData();
         } catch (error) {
             console.error('Error completing step:', error);
@@ -232,15 +234,25 @@ const CourseRoadmap = () => {
         const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
         const passed = percentage >= 80;
 
-        setQuizResult({
-            score,
-            total: totalQuestions,
-            percentage: Math.round(percentage),
-            passed
-        });
+        setQuizResult({ score, total: totalQuestions, percentage: Math.round(percentage), passed });
 
         if (passed) {
             await handleMarkAsCompleted(selectedStep);
+        }
+    };
+
+    const closeStep = () => {
+        setSelectedStep(null);
+        setQuizResult(null);
+        setQuizAnswers({});
+    };
+
+    const openNextStep = () => {
+        const next = getNextStep();
+        if (next) {
+            setSelectedStep(next);
+            setQuizResult(null);
+            setQuizAnswers({});
         }
     };
 
@@ -289,37 +301,46 @@ const CourseRoadmap = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+            <div className="min-h-screen bg-[#080d16] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-12 h-12 text-emerald-500 animate-spin" />
-                    <p className="text-slate-400">Loading curriculum...</p>
+                    <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
+                    <p className="text-slate-500 text-sm tracking-widest uppercase animate-pulse">Loading curriculum...</p>
                 </div>
             </div>
         );
     }
 
+    const nextStep = getNextStep();
+
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 pb-20">
-            {/* Header */}
-            <div className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-4">
-                            <Link to="/lms/dashboard" className="p-2 hover:bg-slate-800 rounded-xl transition-colors">
-                                <ChevronLeft className="w-6 h-6 text-slate-400" />
+        <div className="min-h-screen bg-[#080d16] text-slate-100 pb-20">
+
+            {/* ── Sticky Header ── */}
+            <div className="sticky top-0 z-40 bg-[#080d16]/90 backdrop-blur-md border-b border-slate-800/60">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                            <Link
+                                to="/lms/dashboard"
+                                className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors bg-slate-800/60 hover:bg-slate-800 px-3 py-2 rounded-xl text-sm font-medium border border-slate-700/50"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                                <span className="hidden sm:inline">Dashboard</span>
                             </Link>
                             <div>
-                                <h1 className="text-lg font-bold text-white leading-tight">{course?.course_name}</h1>
-                                <p className="text-xs text-slate-400">Learning Roadmap</p>
+                                <h1 className="text-base font-bold text-white leading-tight line-clamp-1">{course?.course_name}</h1>
+                                <p className="text-[11px] text-slate-500 font-medium">Learning Roadmap</p>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl">
-                                <Flame className={`w-4 h-4 ${streak > 0 ? 'text-orange-500 animate-pulse' : 'text-slate-600'}`} />
+                        <div className="flex items-center gap-2">
+                            {/* Streak */}
+                            <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl">
+                                <Flame className={`w-4 h-4 ${streak > 0 ? 'text-orange-400' : 'text-slate-600'}`} />
                                 <span className={`text-sm font-bold ${streak > 0 ? 'text-white' : 'text-slate-500'}`}>{streak}</span>
                             </div>
-                            <div className="hidden sm:flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-xl">
+                            {/* Progress % */}
+                            <div className="hidden sm:flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-xl">
                                 <TrendingUp className="w-4 h-4 text-blue-400" />
                                 <span className="text-sm font-bold text-white">{overallProgress}%</span>
                             </div>
@@ -327,31 +348,31 @@ const CourseRoadmap = () => {
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden relative">
+                    <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${overallProgress}%` }}
-                            transition={{ duration: 1, ease: "easeOut" }}
-                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 via-emerald-500 to-teal-500 rounded-full"
+                            transition={{ duration: 1, ease: 'easeOut' }}
+                            className="h-full bg-gradient-to-r from-blue-500 via-emerald-500 to-teal-400 rounded-full"
                         />
                     </div>
                 </div>
             </div>
 
-            {/* Course Resources Action Bar */}
+            {/* ── Course Resource Links ── */}
             {(course?.recording_list_url || course?.resource_url) && (
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 -mb-4">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 -mb-2">
                     <div className="flex flex-wrap items-center gap-3">
                         {course?.recording_list_url && (
                             <a
                                 href={course.recording_list_url}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-xl font-bold text-sm hover:bg-violet-500/20 hover:scale-105 transition-all shadow-lg"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-xl font-bold text-sm hover:bg-violet-500/20 transition-all"
                             >
                                 <ListVideo className="w-4 h-4" />
-                                All Class Recordings
-                                <ExternalLink className="w-3.5 h-3.5 opacity-60 ml-1" />
+                                All Recordings
+                                <ExternalLink className="w-3 h-3 opacity-60" />
                             </a>
                         )}
                         {course?.resource_url && (
@@ -359,24 +380,24 @@ const CourseRoadmap = () => {
                                 href={course.resource_url}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-xl font-bold text-sm hover:bg-blue-500/20 hover:scale-105 transition-all shadow-lg"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-xl font-bold text-sm hover:bg-blue-500/20 transition-all"
                             >
                                 <FolderOpen className="w-4 h-4" />
                                 Course Resources
-                                <ExternalLink className="w-3.5 h-3.5 opacity-60 ml-1" />
+                                <ExternalLink className="w-3 h-3 opacity-60" />
                             </a>
                         )}
                     </div>
                 </div>
             )}
 
-            {/* Content */}
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-10 space-y-10">
+            {/* ── Roadmap Timeline ── */}
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-10 space-y-8">
                 {roadmap.length === 0 && (
-                    <div className="text-center py-20 bg-slate-900/30 border border-slate-800 border-dashed rounded-[40px] mt-10">
-                        <BookOpen className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-slate-400">Roadmap is coming soon...</h3>
-                        <p className="text-sm text-slate-600">The administrator is preparing your curriculum.</p>
+                    <div className="text-center py-20 bg-slate-900/30 border border-slate-800 border-dashed rounded-3xl mt-6">
+                        <BookOpen className="w-10 h-10 text-slate-700 mx-auto mb-3" />
+                        <h3 className="text-base font-semibold text-slate-400">Roadmap is coming soon</h3>
+                        <p className="text-sm text-slate-600 mt-1">The administrator is preparing your curriculum.</p>
                     </div>
                 )}
 
@@ -395,62 +416,74 @@ const CourseRoadmap = () => {
                     const groupLocked = isDayGroupLocked(dayKeyIndex);
                     const completedCount = stepsInDay.filter(s => isStepCompleted(s.id)).length;
                     const isCurrentGroup = !groupCompleted && !groupLocked;
+                    const isLastDay = dayKeyIndex === sortedDayKeys.length - 1;
 
                     return (
-                        <div key={dayNumber} className={`flex gap-6 sm:gap-10 ${groupLocked ? 'opacity-50' : ''}`}>
-                            {/* Left: Day Indicator */}
-                            <div className="flex flex-col items-center">
-                                <motion.div
-                                    whileHover={!groupLocked ? { scale: 1.05 } : {}}
-                                    className={`w-16 h-16 sm:w-20 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] flex flex-col items-center justify-center border-4 transform transition-all duration-500 relative shrink-0 ${groupCompleted
-                                        ? 'bg-emerald-500 border-emerald-500/20 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]'
-                                        : groupLocked
-                                            ? 'bg-slate-900 border-slate-800 text-slate-600'
-                                            : isOrientation
-                                                ? 'bg-slate-900 border-violet-500 shadow-[0_0_30px_rgba(139,92,246,0.2)] text-violet-400 ring-4 ring-violet-500/5'
-                                                : 'bg-slate-900 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.2)] text-blue-400 ring-4 ring-blue-500/5'
-                                        }`}
-                                >
-                                    {groupCompleted ? (
-                                        <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10" />
-                                    ) : groupLocked ? (
-                                        <Lock className="w-6 h-6 sm:w-8 sm:h-8 opacity-40" />
-                                    ) : (
-                                        <>
-                                            <span className="text-[9px] font-bold uppercase opacity-60 tracking-wider">{isOrientation ? 'ORT' : 'DAY'}</span>
-                                            <span className="text-lg sm:text-2xl font-black leading-none">{dayLabelShort}</span>
-                                        </>
-                                    )}
+                        <div key={dayNumber} className="flex gap-6 sm:gap-8">
 
-                                    {/* Pulse for current */}
-                                    {isCurrentGroup && (
-                                        <div className={`absolute -inset-1 rounded-[2rem] animate-ping opacity-20 -z-10 ${isOrientation ? 'bg-violet-500' : 'bg-blue-500'}`}></div>
-                                    )}
-                                </motion.div>
-                                {/* Connector line down */}
-                                {dayKeyIndex < sortedDayKeys.length - 1 && (
-                                    <div className="w-0.5 flex-1 mt-2 bg-slate-800 min-h-[2rem]" />
+                            {/* ── Left: Timeline column ── */}
+                            <div className="flex flex-col items-center shrink-0">
+                                {/* Day circle — opacity only on circle, not connector */}
+                                <div className={groupLocked ? 'opacity-40' : ''}>
+                                    <motion.div
+                                        whileHover={!groupLocked ? { scale: 1.05 } : {}}
+                                        className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex flex-col items-center justify-center border-2 transition-all duration-500 relative ${
+                                            groupCompleted
+                                                ? 'bg-emerald-500 border-emerald-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.35)]'
+                                                : groupLocked
+                                                    ? 'bg-slate-900 border-slate-800 text-slate-600'
+                                                    : isOrientation
+                                                        ? 'bg-slate-900 border-violet-500 text-violet-400 shadow-[0_0_20px_rgba(139,92,246,0.2)]'
+                                                        : 'bg-slate-900 border-blue-500 text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.2)]'
+                                        }`}
+                                    >
+                                        {groupCompleted ? (
+                                            <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8" />
+                                        ) : groupLocked ? (
+                                            <Lock className="w-5 h-5 sm:w-6 sm:h-6 opacity-40" />
+                                        ) : (
+                                            <>
+                                                <span className="text-[8px] font-bold uppercase opacity-50 tracking-wider leading-none">{isOrientation ? 'ORT' : 'DAY'}</span>
+                                                <span className="text-base sm:text-xl font-black leading-none">{dayLabelShort}</span>
+                                            </>
+                                        )}
+                                        {/* Pulse ring for active group */}
+                                        {isCurrentGroup && (
+                                            <div className={`absolute -inset-1 rounded-2xl animate-ping opacity-15 -z-10 ${isOrientation ? 'bg-violet-500' : 'bg-blue-500'}`} />
+                                        )}
+                                    </motion.div>
+                                </div>
+
+                                {/* Connector line — color reflects completion, never fades for locked */}
+                                {!isLastDay && (
+                                    <div className={`w-0.5 flex-1 mt-2 min-h-[2rem] rounded-full transition-colors duration-700 ${
+                                        groupCompleted ? 'bg-emerald-500/50' : 'bg-slate-800'
+                                    }`} />
                                 )}
                             </div>
 
-                            {/* Right: Card Group */}
-                            <div className="flex-1 pb-2">
-                                {/* Day label + progress */}
-                                <div className="flex items-center gap-3 mb-3">
-                                    <span className={`text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border ${isOrientation
-                                        ? 'text-violet-400 bg-violet-500/10 border-violet-500/20'
-                                        : 'text-blue-400 bg-blue-500/10 border-blue-500/20'
-                                        }`}>
+                            {/* ── Right: Cards — opacity only on cards ── */}
+                            <div className={`flex-1 pb-2 ${groupLocked ? 'opacity-40' : ''}`}>
+                                {/* Day label row */}
+                                <div className="flex items-center gap-2 mb-3 mt-1">
+                                    <span className={`text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${
+                                        isOrientation
+                                            ? 'text-violet-400 bg-violet-500/10 border-violet-500/20'
+                                            : 'text-blue-400 bg-blue-500/10 border-blue-500/20'
+                                    }`}>
                                         {dayLabel}
                                     </span>
-                                    {groupCompleted ? (
-                                        <span className="text-[10px] font-bold text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded-full bg-emerald-500/5">ALL DONE</span>
-                                    ) : !groupLocked && stepsInDay.length > 1 ? (
-                                        <span className="text-[10px] text-slate-500">{completedCount}/{stepsInDay.length} complete</span>
-                                    ) : null}
+                                    {groupCompleted && (
+                                        <span className="text-[10px] font-bold text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full bg-emerald-500/5">
+                                            ALL DONE
+                                        </span>
+                                    )}
+                                    {!groupCompleted && !groupLocked && stepsInDay.length > 1 && (
+                                        <span className="text-[10px] text-slate-500">{completedCount}/{stepsInDay.length} done</span>
+                                    )}
                                 </div>
 
-                                {/* Activity Cards stack */}
+                                {/* Activity cards */}
                                 <div className="space-y-3">
                                     {stepsInDay.map((step, actIdx) => {
                                         const stepCompleted = isStepCompleted(step.id);
@@ -460,17 +493,20 @@ const CourseRoadmap = () => {
                                             <div
                                                 key={step.id}
                                                 onClick={() => !stepLocked && setSelectedStep(step)}
-                                                className={`relative bg-slate-900 border rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-7 transition-all duration-300 ${stepLocked
-                                                    ? 'border-slate-800 cursor-not-allowed opacity-50'
-                                                    : stepCompleted
-                                                        ? 'border-slate-800 hover:border-emerald-500/30 cursor-pointer hover:bg-emerald-500/5'
-                                                        : 'border-blue-500/30 hover:border-blue-500 hover:-translate-y-1 active:scale-[0.98] cursor-pointer shadow-xl shadow-blue-500/5'
-                                                    } ${isOrientation && !stepCompleted && !stepLocked ? '!border-violet-500/30 hover:!border-violet-500' : ''}`}
+                                                className={`relative bg-slate-900 border rounded-2xl p-5 sm:p-6 transition-all duration-200 ${
+                                                    stepLocked
+                                                        ? 'border-slate-800 cursor-not-allowed'
+                                                        : stepCompleted
+                                                            ? 'border-slate-700/50 hover:border-emerald-500/30 cursor-pointer hover:bg-emerald-500/5'
+                                                            : isOrientation
+                                                                ? 'border-violet-500/30 hover:border-violet-500 hover:-translate-y-0.5 cursor-pointer shadow-lg shadow-violet-500/5'
+                                                                : 'border-blue-500/30 hover:border-blue-500 hover:-translate-y-0.5 cursor-pointer shadow-lg shadow-blue-500/5'
+                                                }`}
                                             >
-                                                {/* Activity badge + status */}
+                                                {/* Top row: type badge + status icon */}
                                                 <div className="flex items-center justify-between mb-3">
                                                     <div className="flex items-center gap-2">
-                                                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-widest flex items-center gap-1.5 ${getStepTypeColor(step.step_type)}`}>
+                                                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-wider flex items-center gap-1.5 ${getStepTypeColor(step.step_type)}`}>
                                                             {getStepTypeIcon(step.step_type, 'w-3 h-3')}
                                                             {getStepTypeLabel(step.step_type)}
                                                         </span>
@@ -478,25 +514,32 @@ const CourseRoadmap = () => {
                                                             <span className="text-[10px] text-slate-600">Activity {actIdx + 1}</span>
                                                         )}
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        {stepCompleted ? (
-                                                            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                                                        ) : !stepLocked ? (
-                                                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping" />
-                                                        ) : (
-                                                            <Lock className="w-4 h-4 text-slate-700" />
-                                                        )}
-                                                    </div>
+                                                    {stepCompleted ? (
+                                                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                                                    ) : !stepLocked ? (
+                                                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                                                    ) : (
+                                                        <Lock className="w-3.5 h-3.5 text-slate-700" />
+                                                    )}
                                                 </div>
 
-                                                <h3 className="text-lg sm:text-xl font-bold text-white mb-1.5">{step.title}</h3>
-                                                <p className="text-sm text-slate-400 line-clamp-2 mb-4">{step.description}</p>
+                                                <h3 className="text-base sm:text-lg font-bold text-white mb-1">{step.title}</h3>
 
-                                                <div className="flex justify-end">
-                                                    <button className={`flex items-center gap-2 text-sm font-bold transition-all ${stepLocked ? 'text-slate-700' : stepCompleted ? 'text-emerald-400' : 'text-blue-400 hover:gap-3'}`}>
-                                                        {stepCompleted ? 'Completed' : stepLocked ? 'Locked' : 'Open'}
-                                                        {!stepLocked && <ArrowRight className="w-4 h-4" />}
-                                                    </button>
+                                                {step.description && (
+                                                    <p className="text-sm text-slate-400 line-clamp-2 mb-4">{step.description}</p>
+                                                )}
+
+                                                {/* CTA button */}
+                                                <div className="flex justify-end mt-3">
+                                                    <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
+                                                        stepLocked
+                                                            ? 'text-slate-700 bg-slate-800/50'
+                                                            : stepCompleted
+                                                                ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'
+                                                                : 'text-white bg-blue-600 hover:bg-blue-500 shadow-sm shadow-blue-500/30'
+                                                    }`}>
+                                                        {stepCompleted ? <><CheckCircle2 className="w-3 h-3" />Completed</> : stepLocked ? <><Lock className="w-3 h-3" />Locked</> : <>Open <ArrowRight className="w-3 h-3" /></>}
+                                                    </span>
                                                 </div>
                                             </div>
                                         );
@@ -508,246 +551,356 @@ const CourseRoadmap = () => {
                 })}
             </div>
 
-            {/* Full-Page Interaction View */}
+            {/* ── Full-Page Step Detail Overlay ── */}
             {selectedStep && (
-                <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950 text-slate-100 animate-in slide-in-from-bottom-8 duration-500">
+                <div className="fixed inset-0 z-50 overflow-y-auto bg-[#080d16] text-slate-100 animate-in slide-in-from-bottom-6 duration-300">
                     <div className="min-h-screen flex flex-col">
-                        {/* Full-Page Header */}
-                        <div className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-2xl border-b border-slate-800 px-4 sm:px-8 py-4 sm:py-6 shadow-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div className="flex items-center gap-4 order-2 sm:order-1">
+
+                        {/* Detail Header */}
+                        <div className="sticky top-0 z-40 bg-[#080d16]/90 backdrop-blur-xl border-b border-slate-800/60 px-4 sm:px-8 py-4 flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 flex-wrap">
                                 <button
-                                    onClick={() => {
-                                        setSelectedStep(null);
-                                        setQuizResult(null);
-                                        setQuizAnswers({});
-                                    }}
-                                    className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors bg-slate-900 hover:bg-slate-800 px-4 py-2.5 rounded-2xl font-bold border border-slate-800"
+                                    onClick={closeStep}
+                                    className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl text-sm font-bold border border-slate-700"
                                 >
-                                    <ChevronLeft className="w-5 h-5" />
-                                    Back to Roadmap
+                                    <ChevronLeft className="w-4 h-4" />
+                                    Back
                                 </button>
-                                <div className="hidden sm:flex items-center gap-2">
-                                    <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border flex items-center gap-1.5 ${getStepTypeColor(selectedStep.step_type)}`}>
-                                        {getStepTypeIcon(selectedStep.step_type, 'w-3.5 h-3.5')}
-                                        {getStepTypeLabel(selectedStep.step_type)}
-                                    </span>
-                                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                                        {selectedStep.day_number <= 0
-                                            ? `Orientation ${(orientationKeys.indexOf(selectedStep.day_number) + 1).toString().padStart(2, '0')}`
-                                            : `Day ${selectedStep.day_number.toString().padStart(2, '0')}`}
-                                    </span>
-                                </div>
+
+                                {/* Type + Day badges — visible on all screens */}
+                                <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1.5 rounded-full border flex items-center gap-1.5 ${getStepTypeColor(selectedStep.step_type)}`}>
+                                    {getStepTypeIcon(selectedStep.step_type, 'w-3 h-3')}
+                                    {getStepTypeLabel(selectedStep.step_type)}
+                                </span>
+                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800/60 px-2.5 py-1.5 rounded-full border border-slate-700/50">
+                                    {selectedStep.day_number <= 0
+                                        ? `Orientation ${(orientationKeys.indexOf(selectedStep.day_number) + 1).toString().padStart(2, '0')}`
+                                        : `Day ${selectedStep.day_number.toString().padStart(2, '0')}`}
+                                </span>
+                            </div>
+
+                            {/* Progress pill */}
+                            <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-400">
+                                <TrendingUp className="w-3.5 h-3.5 text-blue-400" />
+                                {overallProgress}% complete
                             </div>
                         </div>
 
-                        {/* Full-Page Body */}
-                        <div className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
-                            <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight mb-8 sm:mb-12 text-center sm:text-left">
+                        {/* Detail Body */}
+                        <div className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-8 py-8 sm:py-10">
+                            {/* Title */}
+                            <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight mb-8">
                                 {selectedStep.title}
                             </h2>
 
-                            <div className="max-w-5xl mx-auto space-y-10">
-                                {/* ── CLASS or ORIENTATION content ── */}
+                            <div className="space-y-8">
+
+                                {/* ── CLASS / ORIENTATION ── */}
                                 {(selectedStep.step_type === 'class' || selectedStep.step_type === 'orientation') && (
                                     <>
                                         {selectedStep.recording_url ? (
-                                            <div className="aspect-video bg-slate-950 rounded-[32px] overflow-hidden border border-slate-800 shadow-2xl">
+                                            <div className="aspect-video bg-black rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
                                                 <iframe
                                                     className="w-full h-full"
                                                     src={getYouTubeEmbedUrl(selectedStep.recording_url)}
                                                     title="Video Lesson"
-                                                    frameBorder="0"
                                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                                     allowFullScreen
                                                 />
                                             </div>
                                         ) : (
-                                            <div className="aspect-video bg-slate-800/50 rounded-[32px] flex flex-col items-center justify-center text-slate-500 border-2 border-dashed border-slate-700">
-                                                <Video className="w-16 h-16 mb-4 opacity-20" />
-                                                <p className="font-medium">Live Class Only</p>
-                                                <p className="text-sm opacity-60">Join the live session to participate.</p>
+                                            <div className="aspect-video bg-slate-900 rounded-2xl flex flex-col items-center justify-center text-slate-500 border border-dashed border-slate-700 gap-4">
+                                                <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center">
+                                                    <Video className="w-7 h-7 opacity-40" />
+                                                </div>
+                                                <div className="text-center px-8">
+                                                    <p className="font-semibold text-slate-400 mb-1">Recording Not Available Yet</p>
+                                                    <p className="text-sm opacity-60">The class recording will appear here after the live session ends.</p>
+                                                </div>
                                             </div>
                                         )}
 
-                                        <div className="space-y-4">
-                                            <h4 className="font-bold text-white text-xl">Description</h4>
-                                            <p className="text-slate-400 leading-relaxed text-lg">{selectedStep.description}</p>
-                                        </div>
-
+                                        {selectedStep.description && (
+                                            <div className="space-y-2">
+                                                <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Description</h4>
+                                                <p className="text-slate-300 leading-relaxed">{selectedStep.description}</p>
+                                            </div>
+                                        )}
                                     </>
                                 )}
 
-                                {/* ── QUIZ content ── */}
+                                {/* ── QUIZ ── */}
                                 {selectedStep.step_type === 'quiz' && (
                                     <div className="space-y-8">
                                         {quizResult ? (
-                                            <div className="text-center py-10 space-y-6 animate-in zoom-in-95 duration-500">
-                                                <div className={`w-28 h-28 rounded-full mx-auto flex items-center justify-center text-white relative ${quizResult.passed ? 'bg-emerald-500 shadow-emerald-500/30 shadow-2xl' : 'bg-red-500 shadow-red-500/30'}`}>
-                                                    {quizResult.passed ? <Trophy className="w-14 h-14" /> : <AlertCircle className="w-14 h-14" />}
-                                                    <div className="absolute -inset-4 border-2 border-dashed border-slate-700 rounded-full animate-spin-slow"></div>
+                                            /* Quiz result screen */
+                                            <div className="text-center py-10 space-y-6 animate-in zoom-in-95 duration-300">
+                                                <div className={`w-24 h-24 rounded-full mx-auto flex items-center justify-center text-white shadow-2xl ${quizResult.passed ? 'bg-emerald-500 shadow-emerald-500/30' : 'bg-red-500 shadow-red-500/30'}`}>
+                                                    {quizResult.passed ? <Trophy className="w-12 h-12" /> : <AlertCircle className="w-12 h-12" />}
                                                 </div>
+
                                                 <div>
-                                                    <h3 className="text-4xl font-black text-white tracking-tight">
-                                                        {quizResult.passed ? 'Mission Accomplished!' : 'Target Not Met'}
+                                                    <h3 className="text-3xl font-black text-white tracking-tight">
+                                                        {quizResult.passed ? 'Mission Accomplished!' : 'Not Quite Yet'}
                                                     </h3>
-                                                    <div className="flex flex-col items-center mt-4">
-                                                        <span className="text-slate-400 font-medium">Your Accuracy Grade</span>
-                                                        <div className="w-64 h-3 bg-slate-800 rounded-full mt-3 overflow-hidden border border-slate-700">
+                                                    <p className="text-slate-400 mt-2">
+                                                        <span className="font-bold text-white">{quizResult.score} / {quizResult.total}</span> correct &mdash; {quizResult.percentage}%
+                                                    </p>
+
+                                                    <div className="flex flex-col items-center mt-4 gap-2">
+                                                        <div className="w-56 h-2.5 bg-slate-800 rounded-full overflow-hidden">
                                                             <motion.div
                                                                 initial={{ width: 0 }}
                                                                 animate={{ width: `${quizResult.percentage}%` }}
-                                                                className={`h-full ${quizResult.passed ? 'bg-emerald-500' : 'bg-red-500'}`}
+                                                                transition={{ duration: 0.8, ease: 'easeOut' }}
+                                                                className={`h-full rounded-full ${quizResult.passed ? 'bg-emerald-500' : 'bg-red-500'}`}
                                                             />
                                                         </div>
-                                                        <span className={`text-2xl font-black mt-2 ${quizResult.passed ? 'text-emerald-400' : 'text-red-400'}`}>{quizResult.percentage}%</span>
+                                                        <span className="text-xs text-slate-500">80% required to pass</span>
                                                     </div>
                                                 </div>
 
-                                                <div className={`p-6 rounded-[32px] border ${quizResult.passed ? 'bg-emerald-500/5 border-emerald-500/10' : 'bg-red-500/5 border-red-500/10'} max-w-sm mx-auto`}>
+                                                <div className={`p-5 rounded-2xl border max-w-sm mx-auto ${quizResult.passed ? 'bg-emerald-500/5 border-emerald-500/15' : 'bg-red-500/5 border-red-500/15'}`}>
                                                     <p className="text-sm text-slate-400 leading-relaxed">
                                                         {quizResult.passed
-                                                            ? "You've successfully mastered this module. The next milestone is now unlocked!"
-                                                            : `Passing requires at least 80% accuracy. You need ${Math.ceil(80 - quizResult.percentage)}% more to proceed.`}
+                                                            ? "You've mastered this module. The next step is now unlocked!"
+                                                            : `You need ${Math.ceil(80 - quizResult.percentage)}% more to pass. Review and try again.`}
                                                     </p>
                                                 </div>
 
-                                                {!quizResult.passed && (
-                                                    <div className="flex justify-center pt-4">
+                                                <div className="flex items-center justify-center gap-3 pt-2">
+                                                    {!quizResult.passed && (
                                                         <button
                                                             onClick={() => { setQuizResult(null); setQuizAnswers({}); }}
-                                                            className="px-12 py-4 bg-white text-slate-900 hover:bg-slate-200 font-black rounded-2xl transition-all transform hover:scale-105 active:scale-95 shadow-xl shadow-white/10 flex items-center gap-2"
+                                                            className="px-6 py-3 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-xl transition-all flex items-center gap-2"
                                                         >
-                                                            Try Again Now
-                                                            <ArrowRight className="w-5 h-5" />
+                                                            Try Again
+                                                            <ArrowRight className="w-4 h-4" />
                                                         </button>
-                                                    </div>
-                                                )}
+                                                    )}
+                                                    {quizResult.passed && nextStep && (
+                                                        <button
+                                                            onClick={openNextStep}
+                                                            className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all flex items-center gap-2"
+                                                        >
+                                                            Next Step
+                                                            <ArrowRight className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={closeStep}
+                                                        className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition-all"
+                                                    >
+                                                        {quizResult.passed ? 'Back to Roadmap' : 'Close'}
+                                                    </button>
+                                                </div>
                                             </div>
                                         ) : (
+                                            /* Quiz questions */
                                             <div className="space-y-10">
-                                                {selectedStep.content?.questions?.map((q, qidx) => (
-                                                    <div key={q.id} className="space-y-6">
-                                                        <div className="flex gap-4">
-                                                            <div className="bg-slate-800 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-slate-400 shrink-0">{qidx + 1}</div>
-                                                            <h5 className="text-xl font-bold text-white pt-2 leading-tight">{q.text}</h5>
-                                                        </div>
-                                                        <div className="grid grid-cols-1 gap-3 pl-14">
-                                                            {q.options?.map((opt, oidx) => {
-                                                                const isSelected = (quizAnswers[q.id] || []).includes(oidx);
-                                                                return (
-                                                                    <div
-                                                                        key={oidx}
-                                                                        onClick={() => {
-                                                                            let newAns;
-                                                                            if (q.type === 'single') {
-                                                                                newAns = [oidx];
-                                                                            } else {
-                                                                                const current = quizAnswers[q.id] || [];
-                                                                                newAns = current.includes(oidx) ? current.filter(i => i !== oidx) : [...current, oidx];
-                                                                            }
-                                                                            setQuizAnswers({ ...quizAnswers, [q.id]: newAns });
-                                                                        }}
-                                                                        className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 ${isSelected ? 'bg-blue-500/10 border-blue-500 text-blue-400' : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'}`}
-                                                                    >
-                                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-700'}`}>
-                                                                            {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
-                                                                        </div>
-                                                                        <span className="text-lg font-medium">{opt}</span>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                                {selectedStep.content?.questions?.map((q, qidx) => {
+                                                    const isAnswered = !!(quizAnswers[q.id]?.length);
+                                                    return (
+                                                        <div key={q.id} className="space-y-4">
+                                                            <div className="flex gap-4 items-start">
+                                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 transition-colors ${isAnswered ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
+                                                                    {isAnswered ? <CheckCircle2 className="w-4 h-4" /> : qidx + 1}
+                                                                </div>
+                                                                <div>
+                                                                    <h5 className="text-lg font-bold text-white leading-snug">{q.text}</h5>
+                                                                    {q.type === 'multiple' && (
+                                                                        <span className="text-xs text-amber-400 font-semibold mt-1 block">Select all that apply</span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
 
-                                                <button
-                                                    disabled={Object.keys(quizAnswers).length < (selectedStep.content?.questions?.length || 0)}
-                                                    onClick={handleQuizSubmit}
-                                                    className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-xl font-black rounded-3xl shadow-xl shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                                >
-                                                    Submit Answers
-                                                </button>
+                                                            <div className="grid grid-cols-1 gap-3 pl-12">
+                                                                {q.options?.map((opt, oidx) => {
+                                                                    const isSelected = (quizAnswers[q.id] || []).includes(oidx);
+                                                                    return (
+                                                                        <div
+                                                                            key={oidx}
+                                                                            onClick={() => {
+                                                                                let newAns;
+                                                                                if (q.type === 'single') {
+                                                                                    newAns = [oidx];
+                                                                                } else {
+                                                                                    const current = quizAnswers[q.id] || [];
+                                                                                    newAns = current.includes(oidx)
+                                                                                        ? current.filter(i => i !== oidx)
+                                                                                        : [...current, oidx];
+                                                                                }
+                                                                                setQuizAnswers({ ...quizAnswers, [q.id]: newAns });
+                                                                            }}
+                                                                            className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-3 ${
+                                                                                isSelected
+                                                                                    ? 'bg-blue-500/10 border-blue-500 text-blue-300'
+                                                                                    : 'bg-slate-900/60 border-slate-700 text-slate-300 hover:border-slate-600 hover:bg-slate-800/60'
+                                                                            }`}
+                                                                        >
+                                                                            {/* Indicator: circle for single, square for multiple */}
+                                                                            <div className="shrink-0">
+                                                                                {q.type === 'single' ? (
+                                                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${isSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-600'}`}>
+                                                                                        {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
+                                                                                    </div>
+                                                                                ) : isSelected ? (
+                                                                                    <CheckSquare className="w-5 h-5 text-blue-400" />
+                                                                                ) : (
+                                                                                    <Square className="w-5 h-5 text-slate-600" />
+                                                                                )}
+                                                                            </div>
+                                                                            <span className="font-medium leading-snug">{opt}</span>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+
+                                                {/* Answered counter + Submit */}
+                                                {(() => {
+                                                    const totalQ = selectedStep.content?.questions?.length || 0;
+                                                    const answeredQ = Object.keys(quizAnswers).filter(k => quizAnswers[k]?.length > 0).length;
+                                                    const allAnswered = answeredQ >= totalQ;
+                                                    return (
+                                                        <div className="space-y-3 pt-4">
+                                                            <div className="flex items-center justify-between text-sm">
+                                                                <span className="text-slate-400">
+                                                                    <span className={`font-bold ${allAnswered ? 'text-emerald-400' : 'text-white'}`}>{answeredQ}</span>
+                                                                    <span className="text-slate-600"> / {totalQ} answered</span>
+                                                                </span>
+                                                                {!allAnswered && (
+                                                                    <span className="text-amber-400 text-xs font-semibold">{totalQ - answeredQ} remaining</span>
+                                                                )}
+                                                            </div>
+                                                            <button
+                                                                disabled={!allAnswered}
+                                                                onClick={handleQuizSubmit}
+                                                                className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-base font-bold rounded-2xl shadow-xl shadow-blue-500/20 transition-all hover:scale-[1.01] active:scale-[0.99]"
+                                                            >
+                                                                Submit Answers
+                                                            </button>
+                                                        </div>
+                                                    );
+                                                })()}
                                             </div>
                                         )}
                                     </div>
                                 )}
 
-                                {/* ── WATCH & READ / ASSIGNMENT content ── */}
+                                {/* ── WATCH & READ / ASSIGNMENT ── */}
                                 {(selectedStep.step_type === 'reading' || selectedStep.step_type === 'assignment') && (
-                                    <div className="space-y-8">
+                                    <div className="space-y-6">
+                                        {/* YouTube embed for Watch & Read */}
                                         {selectedStep.step_type === 'reading' && selectedStep.recording_url && (
-                                            <div className="aspect-video bg-slate-950 rounded-[32px] overflow-hidden border border-slate-800 shadow-2xl">
+                                            <div className="aspect-video bg-black rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
                                                 <iframe
                                                     className="w-full h-full"
                                                     src={getYouTubeEmbedUrl(selectedStep.recording_url)}
                                                     title="Watch Lesson"
-                                                    frameBorder="0"
                                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                                     allowFullScreen
                                                 />
                                             </div>
                                         )}
-                                        <div className="p-10 bg-slate-900 border border-slate-800 rounded-[40px] text-center space-y-4 shadow-xl">
-                                            {selectedStep.step_type === 'reading'
-                                                ? <BookOpen className="w-20 h-20 text-amber-500 mx-auto opacity-90" />
-                                                : <Target className="w-20 h-20 text-orange-500 mx-auto opacity-90" />}
-                                            <p className="text-slate-300 text-xl leading-relaxed max-w-3xl mx-auto pt-4">{selectedStep.description}</p>
-                                            
-                                            {selectedStep.content?.resources?.length > 0 && (
-                                                <div className="pt-6 space-y-3">
-                                                    <h4 className="text-sm font-bold text-slate-300 uppercase tracking-widest text-left">Attached Materials</h4>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                        {selectedStep.content.resources.map((res, rIdx) => (
-                                                            <a
-                                                                key={rIdx}
-                                                                href={res.url}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                className="flex items-center gap-3 p-4 bg-slate-900 border border-slate-700 hover:border-blue-500/50 hover:bg-slate-800 rounded-2xl transition-all text-left group"
-                                                            >
-                                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${selectedStep.step_type === 'reading' ? 'bg-amber-500/10 text-amber-500' : 'bg-orange-500/10 text-orange-500'}`}>
-                                                                    <LinkIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                                                </div>
-                                                                <div className="overflow-hidden">
-                                                                    <p className="text-sm font-bold text-white truncate">{res.title || 'Reference Link'}</p>
-                                                                    <p className="text-[10px] text-slate-500 uppercase tracking-wider">Click to Open</p>
-                                                                </div>
-                                                            </a>
-                                                        ))}
-                                                    </div>
+
+                                        {/* Description — left-aligned, readable */}
+                                        {selectedStep.description && (
+                                            <p className="text-slate-300 text-base leading-relaxed">
+                                                {selectedStep.description}
+                                            </p>
+                                        )}
+
+                                        {/* Resource links */}
+                                        {selectedStep.content?.resources?.length > 0 && (
+                                            <div className="space-y-3">
+                                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Attached Materials</h4>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    {selectedStep.content.resources.map((res, rIdx) => (
+                                                        <a
+                                                            key={rIdx}
+                                                            href={res.url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="flex items-center gap-3 p-4 bg-slate-900 border border-slate-700 hover:border-amber-500/40 hover:bg-slate-800 rounded-xl transition-all text-left group"
+                                                        >
+                                                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${selectedStep.step_type === 'reading' ? 'bg-amber-500/10 text-amber-400' : 'bg-orange-500/10 text-orange-400'}`}>
+                                                                <LinkIcon className="w-4 h-4" />
+                                                            </div>
+                                                            <div className="overflow-hidden">
+                                                                <p className="text-sm font-semibold text-white truncate">{res.title || 'Reference Link'}</p>
+                                                                <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">Open Link</p>
+                                                            </div>
+                                                            <ExternalLink className="w-3.5 h-3.5 text-slate-600 ml-auto shrink-0 group-hover:text-slate-400 transition-colors" />
+                                                        </a>
+                                                    ))}
                                                 </div>
-                                            )}
-                                        </div>
+                                            </div>
+                                        )}
+
+                                        {/* Empty fallback */}
+                                        {!selectedStep.description && !selectedStep.content?.resources?.length && !selectedStep.recording_url && (
+                                            <div className="text-center py-14 border border-dashed border-slate-800 rounded-2xl">
+                                                <BookOpen className="w-10 h-10 text-slate-700 mx-auto mb-3" />
+                                                <p className="text-slate-500 text-sm">Content will be available soon.</p>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* Footer Spacer & Completion Bar */}
+                        {/* ── Completion Footer ── */}
                         <div className="mt-auto">
                             {!isStepCompleted(selectedStep.id) && selectedStep.step_type !== 'quiz' && (
-                                <div className="p-8 border-t border-slate-800 bg-slate-900/50 flex flex-col items-center">
+                                <div className="border-t border-slate-800 bg-slate-900/60 backdrop-blur-sm px-4 sm:px-8 py-6 flex flex-col items-center gap-3">
                                     <button
                                         onClick={() => handleMarkAsCompleted(selectedStep)}
                                         disabled={isSubmitting}
-                                        className="w-full max-w-lg py-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xl font-black rounded-3xl shadow-xl shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3"
+                                        className="w-full max-w-md py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-base font-bold rounded-2xl shadow-xl shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50"
                                     >
-                                        {isSubmitting ? <Loader2 className="w-6 h-6 animate-spin" /> : <CheckCircle2 className="w-6 h-6" />}
+                                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
                                         Mark as Completed
                                     </button>
-                                    <p className="text-center text-xs text-slate-500 mt-4 uppercase tracking-[0.2em] font-bold">
-                                        Completing today will extend your 🔥 {streak} day streak
+                                    <p className="text-xs text-slate-500 flex items-center gap-1.5 font-medium">
+                                        <Flame className="w-3.5 h-3.5 text-orange-400" />
+                                        Completing today extends your {streak}-day streak
                                     </p>
                                 </div>
                             )}
+
                             {isStepCompleted(selectedStep.id) && (
-                                <div className="p-8 bg-emerald-500/5 border-t border-emerald-500/20 text-center flex flex-col items-center justify-center">
-                                    <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-400 mb-3">
-                                        <CheckCircle2 className="w-6 h-6" />
+                                <div className="border-t border-emerald-500/20 bg-emerald-500/5 backdrop-blur-sm px-4 sm:px-8 py-6">
+                                    <div className="max-w-md mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0">
+                                                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-emerald-400 text-sm">Step Completed!</p>
+                                                <p className="text-xs text-slate-500">Great work, keep going.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={closeStep}
+                                                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-all"
+                                            >
+                                                Roadmap
+                                            </button>
+                                            {nextStep && (
+                                                <button
+                                                    onClick={openNextStep}
+                                                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold flex items-center gap-1.5 transition-all shadow-lg shadow-emerald-500/20"
+                                                >
+                                                    Next Step
+                                                    <ArrowRight className="w-3.5 h-3.5" />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
-                                    <p className="text-emerald-400 text-lg font-bold">
-                                        Great Job! You have completed this milestone.
-                                    </p>
                                 </div>
                             )}
                         </div>
