@@ -41,7 +41,7 @@ const RoadmapManager = ({ course, onClose }) => {
                 .from('course_roadmap')
                 .select('*')
                 .eq('course_id', course.id)
-                .order('day_number', { ascending: true });
+                .order('sort_order', { ascending: true });
 
             if (error) throw error;
             setRoadmap(data || []);
@@ -58,22 +58,19 @@ const RoadmapManager = ({ course, onClose }) => {
         setTimeout(() => setNotification(null), 3000);
     };
 
-    // ── Add a new ORIENTATION step (appends to end of orientations)
+    // ── Add a new ORIENTATION step (appends to end)
     const handleAddOrientation = () => {
-        // Shift all existing orientations backwards by 1 to make room at 0
-        const newRoadmap = roadmap.map(step => {
-            if (step.day_number <= 0) {
-                return { ...step, day_number: step.day_number - 1 };
-            }
-            return step;
-        });
-
-        const uniqueOrientations = new Set(newRoadmap.filter(r => r.day_number <= 0).map(r => r.day_number));
-        const orientationCount = uniqueOrientations.size + 1;
+        const existingOrientations = roadmap.filter(r => r.day_number <= 0);
+        const nextDayNumber = existingOrientations.length > 0
+            ? Math.min(...existingOrientations.map(r => r.day_number)) - 1
+            : 0;
+        const orientationCount = existingOrientations.length + 1;
+        const maxSortOrder = roadmap.length > 0 ? Math.max(...roadmap.map(r => r.sort_order || 0)) : 0;
 
         const newStep = {
             course_id: course.id,
-            day_number: 0,
+            day_number: nextDayNumber,
+            sort_order: maxSortOrder + 1,
             step_type: 'orientation',
             title: `Orientation ${orientationCount < 10 ? `0${orientationCount}` : orientationCount} - Introduction`,
             description: '',
@@ -81,17 +78,19 @@ const RoadmapManager = ({ course, onClose }) => {
             content: {},
             is_new: true
         };
-        
-        setRoadmap([...newRoadmap, newStep].sort((a, b) => a.day_number - b.day_number));
+
+        setRoadmap([...roadmap, newStep]);
     };
 
     // ── Add a full new Day (Day 01, Day 02 ...)
     const handleAddDay = () => {
         const existingDays = roadmap.filter(r => r.day_number > 0);
         const nextDay = existingDays.length > 0 ? Math.max(...existingDays.map(r => r.day_number)) + 1 : 1;
+        const maxSortOrder = roadmap.length > 0 ? Math.max(...roadmap.map(r => r.sort_order || 0)) : 0;
         const newStep = {
             course_id: course.id,
             day_number: nextDay,
+            sort_order: maxSortOrder + 1,
             step_type: 'class',
             title: `Day ${nextDay} - New Lesson`,
             description: '',
@@ -111,9 +110,11 @@ const RoadmapManager = ({ course, onClose }) => {
             orientationTitle = `Orientation ${num < 10 ? `0${num}` : num} - Quiz`;
         }
 
+        const maxSortOrder = roadmap.length > 0 ? Math.max(...roadmap.map(r => r.sort_order || 0)) : 0;
         const newStep = {
             course_id: course.id,
             day_number: dayNumber,
+            sort_order: maxSortOrder + 1,
             step_type: 'quiz',
             title: dayNumber <= 0 ? orientationTitle : `Day ${dayNumber} - Quiz`,
             description: '',
@@ -207,9 +208,9 @@ const RoadmapManager = ({ course, onClose }) => {
         const newRoadmap = [...roadmap];
         const targetIndex = direction === 'up' ? index - 1 : index + 1;
 
-        const tempDay = newRoadmap[index].day_number;
-        newRoadmap[index].day_number = newRoadmap[targetIndex].day_number;
-        newRoadmap[targetIndex].day_number = tempDay;
+        const tempSortOrder = newRoadmap[index].sort_order;
+        newRoadmap[index].sort_order = newRoadmap[targetIndex].sort_order;
+        newRoadmap[targetIndex].sort_order = tempSortOrder;
 
         [newRoadmap[index], newRoadmap[targetIndex]] = [newRoadmap[targetIndex], newRoadmap[index]];
         setRoadmap(newRoadmap);
@@ -379,7 +380,7 @@ const RoadmapManager = ({ course, onClose }) => {
                                                                             <option value="orientation">🎓 Orientation</option>
                                                                             <option value="class">📹 Class</option>
                                                                             <option value="quiz">📝 Quiz</option>
-                                                                            <option value="reading">📖 Reading</option>
+                                                                            <option value="reading">📖 Watch & Read</option>
                                                                             <option value="assignment">📂 Assignment</option>
                                                                         </select>
                                                                         <input
@@ -418,10 +419,23 @@ const RoadmapManager = ({ course, onClose }) => {
                                                                     )}
 
                                                                     {(step.step_type === 'reading' || step.step_type === 'assignment') && (
-                                                                        <div className="space-y-3 p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl">
+                                                                        <div className="space-y-3">
+                                                                        {step.step_type === 'reading' && (
+                                                                            <div className="relative">
+                                                                                <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-500/50" />
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={step.recording_url || ''}
+                                                                                    onChange={(e) => handleUpdateStep(index, 'recording_url', e.target.value)}
+                                                                                    placeholder="YouTube Video URL (optional)"
+                                                                                    className="w-full bg-slate-900/50 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-xs text-slate-400 outline-none focus:border-amber-500"
+                                                                                />
+                                                                            </div>
+                                                                        )}
+                                                                        <div className="p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl">
                                                                             <div className="flex justify-between items-center mb-1">
                                                                                 <p className="text-[10px] text-amber-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                                                                                    <LinkIcon className="w-3 h-3" /> Reading/Task Materials (Optional)
+                                                                                    <LinkIcon className="w-3 h-3" /> Watch & Read Materials (Optional)
                                                                                 </p>
                                                                                 <button
                                                                                     onClick={() => {
@@ -474,6 +488,7 @@ const RoadmapManager = ({ course, onClose }) => {
                                                                             {(!step.content?.resources || step.content?.resources.length === 0) && (
                                                                                 <p className="text-[10px] text-amber-500/50 italic">No specific attachments added. Students will just read the description above.</p>
                                                                             )}
+                                                                        </div>
                                                                         </div>
                                                                     )}
 

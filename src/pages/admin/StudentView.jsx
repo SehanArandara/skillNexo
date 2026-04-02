@@ -169,6 +169,11 @@ const StudentView = () => {
         }
     };
 
+    const getCredentialsMessage = () => {
+        if (!student || !student.lms_account) return '';
+        return `Hello ${student.name}! 🎓\n\nYour LMS access for SkillNexo has been provisioned.\n\n📧 Email: ${student.lms_account.email}\n🔑 Password: ${student.lms_account.password}\n\nYou can log in at: ${window.location.origin}/lms\n\nHappy Learning! 🚀`;
+    };
+
     const handleWhatsAppSend = () => {
         if (!student || !student.lms_account) return;
 
@@ -178,23 +183,15 @@ const StudentView = () => {
             phoneNumber = '94' + phoneNumber.substring(1);
         }
 
-        const message = `Hello ${student.name}! 🎓\n\nYour LMS access for SkillNexo has been provisioned.\n\n📧 Email: ${student.lms_account.email}\n🔑 Password: ${student.lms_account.password}\n\nYou can log in at: ${window.location.origin}/lms\n\nHappy Learning! 🚀`;
+        const message = getCredentialsMessage();
         const encodedMessage = encodeURIComponent(message);
 
         // api.whatsapp.com is more reliable for triggering the desktop app with pre-filled text
         window.open(`https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`, '_blank');
     };
 
-    const handleWhatsAppWelcome = () => {
-        if (!student || !student.whatsapp) return;
-
-        // Clean and format phone number
-        let phoneNumber = student.whatsapp.replace(/\D/g, '');
-        if (phoneNumber.startsWith('0')) {
-            phoneNumber = '94' + phoneNumber.substring(1);
-        }
-
-        const message = `ස්තූතියි! 🙌
+    const getWelcomeMessage = () => {
+        return `ස්තූතියි! 🙌
 *SkillNexo – Web Development + AI/ML පාඨමාලාව* සමඟ ලියාපදිංචි වීම ගැන ඔබව අපි සාදරයෙන් පිළිගන්නවා. 🚀
 
 අපගේ පාඨමාලාව සහ ඉගෙනුම් ක්‍රියාවලිය පිළිබඳ සම්පූර්ණ අවබෝධයක් ලබාගැනීමට කරුණාකර පහත වීඩියෝ *පිළිවෙළින්* නරඹන්න.
@@ -231,7 +228,18 @@ Branch: [ශාඛාව]
 
 ස්තූතියි!
 *Team SkillNexo* 💻🧠`;
+    };
 
+    const handleWhatsAppWelcome = () => {
+        if (!student || !student.whatsapp) return;
+
+        // Clean and format phone number
+        let phoneNumber = student.whatsapp.replace(/\D/g, '');
+        if (phoneNumber.startsWith('0')) {
+            phoneNumber = '94' + phoneNumber.substring(1);
+        }
+
+        const message = getWelcomeMessage();
         const encodedMessage = encodeURIComponent(message);
         window.open(`https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`, '_blank');
     };
@@ -316,13 +324,22 @@ Branch: [ශාඛාව]
                             <DetailItem icon={<Mail className="w-4 h-4 text-blue-400" />} label="Email Address" value={student.email} />
                             <div className="space-y-4">
                                 <DetailItem icon={<Phone className="w-4 h-4 text-emerald-400" />} label="WhatsApp Number" value={student.whatsapp} />
-                                <button
-                                    onClick={handleWhatsAppWelcome}
-                                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition-all"
-                                >
-                                    <MessageCircle className="w-3.5 h-3.5" />
-                                    SEND WELCOME MESSAGE
-                                </button>
+                                <div className="flex flex-col gap-2">
+                                    <button
+                                        onClick={handleWhatsAppWelcome}
+                                        className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition-all"
+                                    >
+                                        <MessageCircle className="w-3.5 h-3.5" />
+                                        SEND WELCOME VIA WHATSAPP
+                                    </button>
+                                    <button
+                                        onClick={() => copyToClipboard(getWelcomeMessage(), 'welcomeMsg')}
+                                        className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 text-slate-300 border border-slate-700 rounded-xl text-xs font-bold hover:bg-slate-700 hover:text-white transition-all"
+                                    >
+                                        {copySuccess === 'welcomeMsg' ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                        COPY MESSAGE TEXT
+                                    </button>
+                                </div>
                             </div>
                             <DetailItem icon={<Calendar className="w-4 h-4 text-purple-400" />} label="Registration Date" value={new Date(student.created_at).toLocaleDateString(undefined, { dateStyle: 'long' })} />
                             <DetailItem icon={<Shield className="w-4 h-4 text-amber-400" />} label="Verified By" value={student.verified_by || 'Not Verified'} />
@@ -393,13 +410,22 @@ Branch: [ශාඛාව]
                                         Credentials were sent via email.
                                     </div>
 
-                                    <button
-                                        onClick={handleWhatsAppSend}
-                                        className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-[10px] font-black tracking-widest transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-3 active:scale-[0.98]"
-                                    >
-                                        <MessageCircle className="w-4 h-4" />
-                                        SEND VIA WHATSAPP
-                                    </button>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            onClick={handleWhatsAppSend}
+                                            className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-black tracking-widest transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 active:scale-[0.98]"
+                                        >
+                                            <MessageCircle className="w-4 h-4 shrink-0" />
+                                            <span>WHATSAPP MSG</span>
+                                        </button>
+                                        <button
+                                            onClick={() => copyToClipboard(getCredentialsMessage(), 'credMsg')}
+                                            className="w-full py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl border border-slate-700 text-[10px] font-black tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 active:scale-[0.98]"
+                                        >
+                                            {copySuccess === 'credMsg' ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" /> : <Copy className="w-4 h-4 shrink-0" />}
+                                            <span>COPY MSG</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ) : (

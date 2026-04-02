@@ -83,7 +83,7 @@ const CourseRoadmap = () => {
                 .from('course_roadmap')
                 .select('*')
                 .eq('course_id', courseId)
-                .order('day_number', { ascending: true });
+                .order('sort_order', { ascending: true });
             if (roadmapError) throw roadmapError;
             setRoadmap(roadmapData || []);
 
@@ -263,6 +263,17 @@ const CourseRoadmap = () => {
             case 'reading': return <BookOpen className={size} />;
             case 'assignment': return <Target className={size} />;
             default: return <FileText className={size} />;
+        }
+    };
+
+    const getStepTypeLabel = (type) => {
+        switch (type) {
+            case 'class': return 'Class';
+            case 'orientation': return 'Orientation';
+            case 'quiz': return 'Quiz';
+            case 'reading': return 'Watch & Read';
+            case 'assignment': return 'Assignment';
+            default: return type;
         }
     };
 
@@ -461,7 +472,7 @@ const CourseRoadmap = () => {
                                                     <div className="flex items-center gap-2">
                                                         <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-widest flex items-center gap-1.5 ${getStepTypeColor(step.step_type)}`}>
                                                             {getStepTypeIcon(step.step_type, 'w-3 h-3')}
-                                                            {step.step_type}
+                                                            {getStepTypeLabel(step.step_type)}
                                                         </span>
                                                         {stepsInDay.length > 1 && (
                                                             <span className="text-[10px] text-slate-600">Activity {actIdx + 1}</span>
@@ -518,7 +529,7 @@ const CourseRoadmap = () => {
                                 <div className="hidden sm:flex items-center gap-2">
                                     <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border flex items-center gap-1.5 ${getStepTypeColor(selectedStep.step_type)}`}>
                                         {getStepTypeIcon(selectedStep.step_type, 'w-3.5 h-3.5')}
-                                        {selectedStep.step_type}
+                                        {getStepTypeLabel(selectedStep.step_type)}
                                     </span>
                                     <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
                                         {selectedStep.day_number <= 0
@@ -661,9 +672,21 @@ const CourseRoadmap = () => {
                                     </div>
                                 )}
 
-                                {/* ── READING / ASSIGNMENT content ── */}
+                                {/* ── WATCH & READ / ASSIGNMENT content ── */}
                                 {(selectedStep.step_type === 'reading' || selectedStep.step_type === 'assignment') && (
                                     <div className="space-y-8">
+                                        {selectedStep.step_type === 'reading' && selectedStep.recording_url && (
+                                            <div className="aspect-video bg-slate-950 rounded-[32px] overflow-hidden border border-slate-800 shadow-2xl">
+                                                <iframe
+                                                    className="w-full h-full"
+                                                    src={getYouTubeEmbedUrl(selectedStep.recording_url)}
+                                                    title="Watch Lesson"
+                                                    frameBorder="0"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                    allowFullScreen
+                                                />
+                                            </div>
+                                        )}
                                         <div className="p-10 bg-slate-900 border border-slate-800 rounded-[40px] text-center space-y-4 shadow-xl">
                                             {selectedStep.step_type === 'reading'
                                                 ? <BookOpen className="w-20 h-20 text-amber-500 mx-auto opacity-90" />
